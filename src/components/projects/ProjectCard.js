@@ -13,11 +13,15 @@ import { Button } from "../ui/button";
 import habitsImg from "@/assets/home/habits.png";
 import conceptsImg from "@/assets/home/concepts.png";
 import questsImg from "@/assets/home/quests.png";
+import wisdomExplorerImg from "@/assets/home/wisdom-explorer.png";
+import roboRallyImg from "@/assets/home/roboRally.png";
 
 const imagesLookup = {
   habits: habitsImg,
   concepts: conceptsImg,
   quests: questsImg,
+  wisdomExplorer: wisdomExplorerImg,
+  roboRally: roboRallyImg,
 };
 
 const ProjectCard = ({ project }) => {
@@ -46,6 +50,9 @@ const ProjectCard = ({ project }) => {
         </Link>
 
         <p className="text-sm text-gray-500">No Signup Required</p>
+        <p className="text-sm text-gray-500">
+          Created By <span className="font-bold">Dejan Gavrilovic</span>
+        </p>
       </CardFooter>
     </Card>
   );

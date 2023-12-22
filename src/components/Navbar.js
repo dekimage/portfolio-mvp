@@ -30,6 +30,12 @@ const components = [
     href: "/quests-builder",
     description: "Gamify your todo lists with quests & rewards",
   },
+  {
+    title: "Robo Rally",
+    href: "/robo-rally",
+    description:
+      "Race game, engine builder game that teaches programming principles and logic while having fun.",
+  },
 ];
 
 function NavBar() {
@@ -37,6 +43,12 @@ function NavBar() {
     <NavigationMenu className="border-b w-full max-w-full py-2 px-4 justify-between">
       <NavigationMenuList>
         <NavigationMenuItem>
+          <Link
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary mr-4"
+            href="/"
+          >
+            Home
+          </Link>
           <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">

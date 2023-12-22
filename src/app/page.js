@@ -23,16 +23,34 @@ const projects = [
     tags: ["App", "Personal Development"],
     url: "quests-builder",
   },
+  {
+    title: "Wisdom Explorers",
+    description:
+      "Tile based game to explore questions and actions that improve your life.",
+    image: "quests",
+    tags: ["Board Game", "Card Game", "Personal Development"],
+    url: "wisdom-explorers",
+    image: "wisdomExplorer",
+  },
+  {
+    title: "Robo Rally",
+    description:
+      "Race game, engine builder game that teaches programming principles and logic while having fun.",
+    image: "quests",
+    tags: ["Board Game", "Card Game", "Programming"],
+    url: "robo-rally",
+    image: "roboRally",
+  },
 ];
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 pt-12">
+    <main className="flex  flex-col items-center justify-between px-8 pt-12">
       <div className="flex flex-col items-center justify-center">
         <h1 className="text-6xl font-bold">Dejan Gavrilovic</h1>
-        <p className="text-xl text-center">Creations</p>
+        <p className="text-xl text-center mt-6">Explore Creations</p>
       </div>
-      <div className="flex flex-wrap w-full">
+      <div className="flex flex-wrap w-full mt-12">
         {projects.map((project) => (
           <ProjectCard key={project.title} project={project} />
         ))}
