@@ -14,7 +14,8 @@ import habitsImg from "@/assets/home/habits.png";
 import conceptsImg from "@/assets/home/concepts.png";
 import questsImg from "@/assets/home/quests.png";
 import wisdomExplorerImg from "@/assets/home/wisdom-explorer.png";
-import roboRallyImg from "@/assets/home/roboRally.png";
+import roboRallyImg from "@/assets/home/robo-rally.png";
+import myHabitsImg from "@/assets/home/my-habits.png";
 
 const imagesLookup = {
   habits: habitsImg,
@@ -22,6 +23,7 @@ const imagesLookup = {
   quests: questsImg,
   wisdomExplorer: wisdomExplorerImg,
   roboRally: roboRallyImg,
+  myHabits: myHabitsImg,
 };
 
 const ProjectCard = ({ project }) => {

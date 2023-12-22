@@ -2,6 +2,14 @@ import ProjectCard from "@/components/projects/ProjectCard";
 
 const projects = [
   {
+    title: "My Habits",
+    description:
+      "A place for all of my habits. I share how I use them and how you can use them too.",
+    image: "myHabits",
+    tags: ["App", "Personal Development"],
+    url: "my-habits",
+  },
+  {
     title: "Top 50 Concepts",
     description:
       "Implement the top 50 ideas from books into your life with actionable steps.",
@@ -27,7 +35,6 @@ const projects = [
     title: "Wisdom Explorers",
     description:
       "Tile based game to explore questions and actions that improve your life.",
-    image: "quests",
     tags: ["Board Game", "Card Game", "Personal Development"],
     url: "wisdom-explorers",
     image: "wisdomExplorer",
@@ -36,19 +43,26 @@ const projects = [
     title: "Robo Rally",
     description:
       "Race game, engine builder game that teaches programming principles and logic while having fun.",
-    image: "quests",
     tags: ["Board Game", "Card Game", "Programming"],
     url: "robo-rally",
     image: "roboRally",
+  },
+  {
+    title: "Ugly Tasks",
+    description:
+      "Todo list app for difficult tasks. It helps you optimize them using the 6 aspects of procrastination.",
+    tags: ["App", "Personal Development"],
+    url: "ugly-tasks",
+    image: "uglyTasks",
   },
 ];
 
 export default function Home() {
   return (
-    <main className="flex  flex-col items-center justify-between px-8 pt-12">
+    <main className="flex  flex-col items-center justify-between pt-12">
       <div className="flex flex-col items-center justify-center">
         <h1 className="text-6xl font-bold">Dejan Gavrilovic</h1>
-        <p className="text-xl text-center mt-6">Explore Creations</p>
+        <p className="text-xl text-center mt-6">Explore Projects</p>
       </div>
       <div className="flex flex-wrap w-full mt-12">
         {projects.map((project) => (

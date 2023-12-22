@@ -8,6 +8,11 @@ import energyIcon from "./assets/energy.png";
 import mpIcon from "./assets/mp.png";
 import reputationIcon from "./assets/reputation.png";
 import creditIcon from "./assets/credit.png";
+import HeroSection from "../reusable-ui/HeroSection";
+import roboLogoImg from "./assets/robo-logo.png";
+
+const roboBgImg =
+  "https://cdn.midjourney.com/474f00cb-98d7-45fa-a965-6b8019d22205/0_3.webp";
 
 const imageLookup = {
   energy: energyIcon,
@@ -82,10 +87,10 @@ const RoboRally = () => {
   return (
     <GameProvider>
       <div className="container mx-auto p-4">
+        <HeroSection logo={roboLogoImg} bgImg={roboBgImg} />
         <ControlRoom />
         <CardsBoard />
         <ResourcesDisplay />
-
         <GameBoard />
       </div>
     </GameProvider>
