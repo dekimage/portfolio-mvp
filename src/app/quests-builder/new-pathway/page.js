@@ -1,6 +1,6 @@
 "use client";
 import { Switch } from "@/components/ui/switch";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Combobox } from "../components/ComboBox";
 import { Button } from "@/components/ui/button";
 import { LuTrash } from "react-icons/lu";
@@ -11,6 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import MobxStore from "../mobx";
+import { useRouter } from "next/navigation";
 
 const ImageSelection = ({ handleSelectImage }) => {
   const images = [
@@ -153,9 +155,15 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
     steps: [],
   };
 
-  const [pathway, setPathway] = useState(
-    pathwayToEdit ? pathwayToEdit : defaultPathway
-  );
+  const router = useRouter();
+
+  const [pathway, setPathway] = useState(pathwayToEdit || defaultPathway);
+
+  useEffect(() => {
+    if (pathwayToEdit) {
+      setPathway(pathwayToEdit);
+    }
+  }, [pathwayToEdit]);
 
   const handleInputChange = (name, value) => {
     setPathway({ ...pathway, [name]: value });
@@ -200,16 +208,48 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
     setPathway({ ...pathway, steps: newSteps });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (pathwayToEdit) {
+      if (pathwayToEdit.creatorId === MobxStore.user.uid) {
+        if ("originalPathwayId" in pathwayToEdit) {
+          // Editing user's own pathway copy
+          await MobxStore.updateUserPathway(pathwayToEdit.id, pathway);
+        } else {
+          // Editing user's own original pathway
+          await MobxStore.updatePathway(pathwayToEdit.id, pathway);
+        }
+      } else {
+        // AKO MI TREBA SAMO CREATE - VAKA, ALI AKO TREBA I DA PROVERAM DALI VEKJE GO IMA ONDAK SO GETOR CREATE,
+        // MOZAM SO UI DA SREDAM OVOJ CASE ZA NA SETTINGS KOPCETO DA TE PRASA DALI SAKAS DA IDES NA TVOJOT EXISTING COPY ILI NOV SAKAS OD TOJ TEMPLATE
+        // const copyId = await MobxStore.getOrCreateUserPathwayCopy(
+        //   pathwayToEdit.id
+        // );
+
+        const copyId = await MobxStore.createPathwayCopy(pathwayToEdit.id);
+
+        // update the fresh copy just made
+        if (copyId) {
+          const pathwayWithoutId = { ...pathway };
+          delete pathwayWithoutId.id;
+          await MobxStore.updateUserPathway(copyId, pathwayWithoutId);
+        }
+      }
+    } else {
+      // Creating a new public pathway template
+      const newId = await MobxStore.addPathway(pathway);
+      setPathway(defaultPathway);
+      router.push("/quests-builder");
+    }
   };
 
   const [musicTrack, setMusicTrack] = useState("");
 
   return (
     <div className="mt-4 flex justify-center">
-      <form
-        onSubmit={handleSubmit}
+      <div
+        // onSubmit={handleSubmit}
         className="flex flex-col bg-white p-4 rounded-lg max-w-[480px] w-full"
       >
         <EmojiBox emoji="📖" setEmojiPickerOpen={setEmojiPickerOpen} />
@@ -281,10 +321,10 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
         )}
 
         <div className="text-2xl mt-8 flex justify-center">
-          Steps ({pathway.steps.length})
+          Steps ({pathway.steps?.length})
         </div>
 
-        {pathway.steps.map((step, index) => {
+        {pathway.steps?.map((step, index) => {
           return (
             <div
               key={index}
@@ -403,11 +443,12 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
         <Button
           type="submit"
           className="mt-4"
-          disabled={pathway.steps.length < 1}
+          // disabled={pathway.steps?.length < 1}
+          onClick={handleSubmit}
         >
           Save Changes
         </Button>
-      </form>
+      </div>
     </div>
   );
 };

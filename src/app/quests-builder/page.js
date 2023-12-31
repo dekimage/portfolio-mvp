@@ -28,7 +28,10 @@ import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineMusicNote, MdOutlineMusicOff } from "react-icons/md";
 import Link from "next/link";
-import { EmojiBox } from "./new-pathway/page";
+import PathwayBuilder, { EmojiBox } from "./new-pathway/page";
+
+import { observer } from "mobx-react";
+import MobxStore from "./mobx";
 
 const backgroundCover =
   "https://cdn.midjourney.com/e9023bf4-7612-40dc-b88f-2e86b490ea66/0_0.png";
@@ -530,7 +533,7 @@ const PathwayCard = ({ pathway, onPlay }) => {
           {duration}
         </Badge>
         <Badge variant="screen" className="mr-2">
-          {steps.length} Steps
+          {steps?.length} Steps
         </Badge>
 
         <Badge variant="screen" className="mr-2">
@@ -545,11 +548,51 @@ const PathwayCard = ({ pathway, onPlay }) => {
   );
 };
 
-const QuestsBuilder = () => {
+const QuestsBuilder = observer(() => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState(false);
+  const handleSignIn = async () => {
+    await MobxStore.signInAnonymously();
+  };
+  const pathwaysNotOwnedByUser = MobxStore.pathways.filter(
+    (pathway) => pathway.creatorId !== MobxStore.user?.uid
+  );
+
+  const { userPathways } = MobxStore;
+
   return (
     <div m2>
+      {MobxStore.user ? (
+        <p>User ID: {MobxStore.user.uid}</p>
+      ) : (
+        <div>
+          <p>No user signed in</p>
+          <Button onClick={handleSignIn}>Sign In Anonymously</Button>
+        </div>
+      )}
       {/* <HeroSection bgImg={backgroundCover} logo={questsLogo} /> */}
+
+      <div>All Firebase Pathways</div>
+      <div>
+        {MobxStore.pathways.map((pathway, i) => (
+          <PathwayCard
+            key={i}
+            pathway={pathway}
+            onPlay={() => {
+              setCurrentlyPlaying(pathway);
+            }}
+          />
+        ))}
+      </div>
+      {/* 
+      <div>EDIT ANOTHERS USER PATHWAY</div>
+      <div>
+        <PathwayBuilder pathwayToEdit={pathwaysNotOwnedByUser[0]} />
+      </div>
+
+      <div>EDIT MY USERS COPIES PATHWAYS</div>
+      <div>
+        <PathwayBuilder pathwayToEdit={userPathways[0]} />
+      </div> */}
 
       {currentlyPlaying ? (
         <PathwayPlayer
@@ -575,7 +618,7 @@ const QuestsBuilder = () => {
       )}
     </div>
   );
-};
+});
 
 export default QuestsBuilder;
 
