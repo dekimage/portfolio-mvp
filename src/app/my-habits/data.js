@@ -1,5 +1,14 @@
 export const habits = [
   {
+    name: "Watch BGGs how to play",
+    type: "habit",
+    duration: "1h",
+    frequency: "trigger",
+    description:
+      "This is a relaxing activity better than wasting time, because I can learn mechanics about board games while i enjoy and relax before bed time.",
+    notes: [],
+  },
+  {
     name: "Yoga Surya Kriya",
     type: "habit",
     duration: "20 min",
