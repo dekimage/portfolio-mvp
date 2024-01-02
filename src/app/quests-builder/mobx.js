@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signInAnonymously, getAuth } from "firebase/auth";
 import {
@@ -7,6 +7,7 @@ import {
   setDoc,
   collection,
   addDoc,
+  deleteDoc,
   query,
   onSnapshot,
   updateDoc,
@@ -14,16 +15,21 @@ import {
   where,
 } from "firebase/firestore";
 
+const MAX_LOGS_PER_DAY = 5; // change this to user controlled per pathway - pathway.maxLogsPerDay
+
 class Store {
+  loading = true;
   user = null;
+  rewards = [];
   pathways = [];
   userPathways = [];
+  pathwayPlaying = false;
 
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
     this.fetchPathways();
-    // this.fetchUserPathways();
+    this.setPathwayPlaying = this.setPathwayPlaying.bind(this);
   }
 
   initializeAuth() {
@@ -33,22 +39,123 @@ class Store {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
-        if (!userDoc.exists()) {
-          const newUser = {
-            uid: user.uid, // Include the user ID
-            level: 1,
-            xp: 0,
-            createdAt: new Date(),
-            name: user.isAnonymous ? "Anonymous" : user.displayName,
-          };
-          await setDoc(userDocRef, newUser);
-          this.user = newUser;
-        } else {
-          this.user = { uid: user.uid, ...userDoc.data() }; // Include the user ID
-        }
-        this.fetchUserPathways();
+        runInAction(() => {
+          if (!userDoc.exists()) {
+            const newUser = {
+              uid: user.uid,
+              level: 1,
+              xp: 0,
+              createdAt: new Date(),
+            };
+            setDoc(userDocRef, newUser).then(() => {
+              this.user = newUser;
+            });
+          } else {
+            this.user = { uid: user.uid, ...userDoc.data() };
+          }
+          this.fetchUserPathways();
+          this.fetchUserRewards();
+        });
       } else {
-        this.user = null;
+        runInAction(() => {
+          this.user = null;
+        });
+      }
+      runInAction(() => {
+        this.loading = false;
+      });
+    });
+  }
+
+  async fetchUserRewards() {
+    if (!this.user) {
+      console.log("User not authenticated");
+      return;
+    }
+    try {
+      const userRewardsRef = collection(db, `users/${this.user.uid}/rewards`);
+      const querySnapshot = await getDocs(userRewardsRef);
+
+      runInAction(() => {
+        this.rewards = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      });
+
+      console.log("User rewards fetched successfully");
+    } catch (error) {
+      console.log("Error fetching user rewards:", error);
+    }
+  }
+
+  async addReward(reward) {
+    try {
+      const userRewardsRef = collection(db, `users/${this.user.uid}/rewards`);
+
+      const docRef = await addDoc(userRewardsRef, reward);
+
+      console.log("Reward added with ID: ", docRef.id);
+      runInAction(() => {
+        this.rewards.push({
+          id: docRef.id,
+          ...reward,
+        });
+      });
+      return docRef.id; // Return the ID for further use
+    } catch (error) {
+      console.log("Error adding reward: ", error);
+    }
+  }
+
+  // Update an existing reward in the user's subcollection
+  async updateReward(reward) {
+    try {
+      const userRewardRef = doc(
+        db,
+        `users/${this.user.uid}/rewards`,
+        reward.id
+      );
+      await setDoc(userRewardRef, reward);
+
+      console.log("Reward updated successfully with ID:", reward.id);
+      runInAction(() => {
+        const index = this.rewards.findIndex((r) => r.id === reward.id);
+        if (index !== -1) {
+          this.rewards[index] = { id: reward.id, ...reward };
+        }
+      });
+    } catch (error) {
+      console.log("Error updating reward:", error);
+    }
+  }
+
+  async deleteReward(reward) {
+    try {
+      const userRewardRef = doc(
+        db,
+        `users/${this.user.uid}/rewards`,
+        reward.id
+      );
+      await deleteDoc(userRewardRef);
+
+      console.log("Reward deleted successfully with ID:", reward.id);
+
+      // Update Mobx variable
+      runInAction(() => {
+        this.rewards = this.rewards.filter((r) => r.id !== reward.id);
+      });
+    } catch (error) {
+      console.log("Error deleting reward:", error);
+    }
+  }
+
+  setPathwayPlaying(pathway) {
+    runInAction(() => {
+      if (pathway) {
+        this.pathwayPlaying = pathway;
+      } else {
+        this.pathwayPlaying = false;
       }
     });
   }
@@ -56,16 +163,18 @@ class Store {
   fetchPathways() {
     const q = query(collection(db, "pathways"));
     onSnapshot(q, (querySnapshot) => {
-      this.pathways = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      runInAction(() => {
+        this.pathways = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      });
     });
   }
 
   async fetchUserPathways() {
     if (!this.user) {
-      console.error("User not authenticated");
+      console.log("User not authenticated");
       return;
     }
 
@@ -76,34 +185,85 @@ class Store {
       );
       const querySnapshot = await getDocs(userPathwayRef);
 
-      this.userPathways = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      console.log("User pathways fetched successfully");
+      runInAction(() => {
+        this.userPathways = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          creatorId: this.user.uid,
+          ...doc.data(),
+        }));
+      });
     } catch (error) {
-      console.error("Error fetching user pathways:", error);
+      console.log("Error fetching user pathways:", error);
     }
   }
 
-  addPathway = async (pathway) => {
+  addUserPathway = async (pathway) => {
     if (!this.user) {
-      console.error("Error: User not authenticated.");
+      console.log("Error: User not authenticated.");
       return;
     }
 
     try {
-      const pathwayWithCreator = { ...pathway, creatorId: this.user.uid };
-      const docRef = await addDoc(
-        collection(db, "pathways"),
-        pathwayWithCreator
+      const userPathwayRef = collection(
+        db,
+        `users/${this.user.uid}/myPathways`
       );
-      console.log("Pathway created with ID: ", docRef.id);
+      const docRef = await addDoc(userPathwayRef, pathway);
+      console.log("User pathway created with ID: ", docRef.id);
+      return docRef.id; // Return the ID for further use
     } catch (error) {
-      console.error("Error adding pathway: ", error);
+      console.log("Error adding user pathway: ", error);
     }
   };
+
+  publishPathway = async (pathwayId) => {
+    if (!this.user) {
+      console.log("Error: User not authenticated.");
+      return;
+    }
+
+    try {
+      const userPathwayRef = doc(
+        db,
+        `users/${this.user.uid}/myPathways`,
+        pathwayId
+      );
+      const userPathwayDoc = await getDoc(userPathwayRef);
+
+      if (!userPathwayDoc.exists()) {
+        console.log("Error: Pathway not found.");
+        return;
+      }
+
+      const publicPathway = {
+        ...userPathwayDoc.data(),
+        creatorId: this.user.uid,
+        published: true,
+      };
+      const docRef = await addDoc(collection(db, "pathways"), publicPathway);
+      console.log("Pathway published with ID: ", docRef.id);
+    } catch (error) {
+      console.log("Error publishing pathway: ", error);
+    }
+  };
+
+  // addPathway = async (pathway) => {
+  //   if (!this.user) {
+  //     console.log("Error: User not authenticated.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const pathwayWithCreator = { ...pathway, creatorId: this.user.uid };
+  //     const docRef = await addDoc(
+  //       collection(db, "pathways"),
+  //       pathwayWithCreator
+  //     );
+  //     console.log("Pathway created with ID: ", docRef.id);
+  //   } catch (error) {
+  //     console.log("Error adding pathway: ", error);
+  //   }
+  // };
 
   async updatePathway(pathwayId, pathwayData) {
     console.log(
@@ -120,13 +280,13 @@ class Store {
       const updatedDoc = await getDoc(docRef);
       console.log("Updated document data:", updatedDoc.data());
     } catch (error) {
-      console.error("Error updating pathway:", error);
+      console.log("Error updating pathway:", error);
     }
   }
 
   async updateUserPathway(userPathwayId, pathwayData) {
     if (!this.user) {
-      console.error("User not authenticated");
+      console.log("User not authenticated");
       return;
     }
 
@@ -137,9 +297,8 @@ class Store {
         userPathwayId
       );
       await updateDoc(userPathwayRef, pathwayData);
-      console.log(111, "User pathway updated with ID: ", userPathwayId);
     } catch (error) {
-      console.error("Error updating user pathway: ", error);
+      console.log("Error updating user pathway: ", error);
     }
   }
 
@@ -150,7 +309,7 @@ class Store {
       originalPathwayId
     );
     if (!this.user) {
-      console.error("User not authenticated");
+      console.log("User not authenticated");
       return;
     }
 
@@ -160,7 +319,7 @@ class Store {
       const originalPathwayDoc = await getDoc(originalPathwayRef);
 
       if (!originalPathwayDoc.exists()) {
-        console.error("Original pathway not found");
+        console.log("Original pathway not found");
         return;
       }
 
@@ -182,20 +341,20 @@ class Store {
       const docRef = await addDoc(userPathwayRef, {
         ...pathwayDataWithoutId,
         originalPathwayId: originalPathwayId,
-        creatorId: this.user.uid,
+        isCopy: true,
         modifiedAt: new Date(),
       });
 
       console.log("Pathway copy created successfully");
       return docRef.id;
     } catch (error) {
-      console.error("Error creating pathway copy:", error);
+      console.log("Error creating pathway copy:", error);
     }
   }
 
   async getOrCreateUserPathwayCopy(originalPathwayId) {
     if (!this.user) {
-      console.error("User not authenticated");
+      console.log("User not authenticated");
       return null;
     }
 
@@ -216,34 +375,71 @@ class Store {
         return this.createPathwayCopy(originalPathwayId);
       }
     } catch (error) {
-      console.error("Error in getOrCreateUserPathwayCopy:", error);
+      console.log("Error in getOrCreateUserPathwayCopy:", error);
       return null;
     }
   }
 
-  // Function to store pathway completion log
-  async logPathwayCompletion(userPathwayId, completionDetails) {
+  async addLog(pathwayId, logData) {
     if (!this.user) {
-      console.error("User not authenticated");
+      console.log("User not authenticated");
+      return;
+    }
+
+    const canSave = await this.canSaveLog(pathwayId);
+    if (!canSave) {
+      console.log("Log limit reached for the day");
       return;
     }
 
     try {
       const logRef = collection(db, `users/${this.user.uid}/activityLogs`);
       await addDoc(logRef, {
-        pathwayId: userPathwayId,
-        completedAt: new Date(),
-        ...completionDetails, // Include other log details like responses
+        pathwayId,
+        ...logData,
+        timestamp: new Date(),
       });
 
-      console.log("Pathway completion logged successfully");
+      console.log("Session log saved successfully");
     } catch (error) {
-      console.error("Error logging pathway completion:", error);
+      console.log("Error saving session log:", error);
+    }
+  }
+
+  async canSaveLog(pathwayId) {
+    if (!this.user) {
+      console.log("User not authenticated");
+      return false;
+    }
+
+    try {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const logQuery = query(
+        collection(db, `users/${this.user.uid}/activityLogs`),
+        where("pathwayId", "==", pathwayId),
+        where("timestamp", ">=", startOfDay),
+        where("timestamp", "<=", endOfDay)
+      );
+
+      console.log({ logQuery });
+
+      const querySnapshot = await getDocs(logQuery);
+      console.log({ querySnapshot });
+      return querySnapshot.size < MAX_LOGS_PER_DAY;
+    } catch (error) {
+      console.log("Error checking log availability:", error);
+      return false;
     }
   }
 
   signInAnonymously = async () => {
     await signInAnonymously(auth);
+    console.log("Signed in anonymously");
   };
 }
 

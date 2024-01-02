@@ -1,172 +1,202 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import questsLogo from "./assets/gamified-quests-logo.png";
-import {
-  FaArrowLeft,
-  FaCog,
-  FaPlay,
-  FaPause,
-  FaRedo,
-  FaStar,
-} from "react-icons/fa";
+import { FaPlay, FaPause, FaRedo, FaStar } from "react-icons/fa";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import Image from "next/image";
-
+import { Card, CardDescription } from "@/components/ui/card";
 import { MdClose } from "react-icons/md";
-import HeroSection from "../reusable-ui/HeroSection";
-
 import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdOutlineMusicNote, MdOutlineMusicOff } from "react-icons/md";
-import Link from "next/link";
-import PathwayBuilder, { EmojiBox } from "./new-pathway/page";
+import PathwayBuilder from "./new-pathway/page";
 
 import { observer } from "mobx-react";
 import MobxStore from "./mobx";
-
-const backgroundCover =
-  "https://cdn.midjourney.com/e9023bf4-7612-40dc-b88f-2e86b490ea66/0_0.png";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 // import HeroSection from "../reusable-ui/HeroSection";
 // import habitsLogo from "./assets/habits-logo.png";
 
+import { LoadingSpinner } from "./components/LoadingSpinner";
+import { backgroundCover } from "./layout";
+
 const pathways = [
   {
-    name: "Morning Reflection",
+    name: "Plan my Day",
     description: "A simple process to help you focus on what matters most.",
-    duration: "10 min",
+    duration: "3 min",
     time: "Morning",
     emoji: "📜",
-    autoPlayMusic: true,
+    autoPlayMusic: false,
     background: backgroundCover,
     steps: [
       {
-        question: "What's your main goal for today?",
-        context:
-          "Think about your goals for the day. Try to write down at least 1 that is very important for you, and if you don't do it that you will feel bad.",
-        timer: 120,
+        question: "What is the most important task for today?",
+        context: "Write down the absolute must for today, 1 main FROG.",
+        timer: 30,
         currentStep: 1,
         buttonText: "Next",
-        minText: 50,
+        minText: 5,
         inputType: "text",
-        allowSkip: true,
-        autoplay: true,
+        allowSkip: false,
+        autoplay: false,
       },
       {
-        question: "List three tasks you want to accomplish.",
-        timer: 180,
+        question: "List 2 bonus tasks for today.",
+        context: "These are important but not as much as the FROG.",
+        timer: 45,
         currentStep: 2,
         buttonText: "Next",
-        minText: 50,
+        minText: 10,
         inputType: "text",
-        allowSkip: true,
-        autoplay: true,
+        allowSkip: false,
+        autoplay: false,
       },
       {
-        question: "What's your motivational quote for the day?",
-        timer: 90,
+        question: "Add 2 more extra tasks that are nice to have.",
+        context:
+          "These DONT add pressure! They are fun extras if I want to have fun.",
+        timer: 30,
         currentStep: 3,
         buttonText: "Complete",
-        minText: 30,
+        minText: 10,
         inputType: "text",
         allowSkip: true,
-        autoplay: true,
+        autoplay: false,
       },
     ],
   },
   {
-    name: "Evening Reflection",
-    description: "A simple process to help you focus on what matters most.",
-    duration: "10 min",
+    name: "Deep Work",
+    description:
+      "Get 80% of your daily work done in just 90 minutes of laser focused time.",
+    duration: "90 min",
     time: "Morning",
     emoji: "🧘",
     background: backgroundCover,
     steps: [
       {
-        question: "What was the highlight of your day?",
-        timer: 120,
+        question:
+          "Remove all possible distractions, all notifications off and all people OFF. Tell everyone you are getting into BEAST MODE.",
+        context: "this should be a checklist",
+        timer: 30,
         currentStep: 1,
         buttonText: "Next",
-        minText: 50,
+        minText: 0,
         inputType: "text",
         allowSkip: true,
-        autoplay: true,
+        autoplay: false,
+      },
+      {
+        question: "Get your FROG READY.",
+        context:
+          "POTENTIAL TASK: LINKING OF PATHWAYS, LIKE NOW I NEED TO LINK FIND MY PRIORITIES TASK HERE. OR THE RESULT OF IT?? THINK ABOUT THIS! DENI",
+        timer: 10,
+        currentStep: 2,
+        buttonText: "Next",
+        minText: 0,
+        inputType: "text",
+        allowSkip: true,
+      },
+      {
+        question: "Focus Session #1",
+        context:
+          "This is type nothing? you just need to do something, maybe timer will be in focus with bonus reminders? or somthn that you might require",
+        timer: 60 * 60,
+        currentStep: 3,
+        buttonText: "Next",
+        minText: 0,
+        inputType: "text",
       },
       {
         question:
-          "Did you face any challenges today? How did you overcome them?",
-        context:
-          "Try to identify some problems with that, brainstorm at least 5 options!",
-        timer: 180,
-        currentStep: 2,
+          "Small Break, Get up and stretch, drink water and juggle with balls. Get hyped and ready to complete a tough session!",
+        context: "probably checklist again",
+        timer: 5 * 60,
+        currentStep: 3,
         buttonText: "Next",
-        minText: 50,
+        minText: 0,
         inputType: "text",
-        allowSkip: true,
-        autoplay: true,
       },
       {
-        question: "What are you grateful for today?",
-        timer: 90,
+        question: "Focus Session #2",
+        context:
+          "This is type nothing? you just need to do something, maybe timer will be in focus with bonus reminders? or somthn that you might require",
+        timer: 60 * 60,
         currentStep: 3,
-        buttonText: "Complete",
-        minText: 30,
+        buttonText: "Next",
+        minText: 0,
         inputType: "text",
-        autoplay: true,
       },
     ],
   },
   {
-    name: "Find your Most Important Tasks",
-    description: "A simple process to help you focus on what matters most.",
-    duration: "10 min",
-    time: "Morning",
+    name: "Reflect on Learning",
+    description: "Learn by reflection",
+    duration: "5 min",
+    time: "Night",
     emoji: "📖",
     autoPlayMusic: true,
     background: backgroundCover,
     steps: [
       {
         question: "What new thing did you learn today?",
-        timer: 120,
+        context: "Write down at least 1 thing.",
+        timer: 60,
         currentStep: 1,
         buttonText: "Next",
-        minText: 50,
+        minText: 20,
         inputType: "text",
-        allowSkip: true,
-        autoplay: true,
+        allowSkip: false,
+        autoplay: false,
       },
       {
         question:
           "Reflect on how you applied yesterday's learning in today's activities.",
+        context:
+          "Think of something that i have applied today that i learned in a previous session, and try to note what specifically i did and from where i learned it.",
         timer: 150,
         currentStep: 2,
         buttonText: "Next",
-        minText: 50,
-        inputType: "text",
-        autoplay: false,
-      },
-      {
-        question: "Set a small goal for personal improvement for tomorrow.",
-        timer: 120,
-        currentStep: 3,
-        buttonText: "Complete",
-        minText: 30,
+        minText: 15,
         inputType: "text",
         allowSkip: true,
-        autoplay: false,
       },
     ],
   },
 ];
+
+export const TitleDescription = ({ title, description, button }) => {
+  return (
+    <div className="flex items-center justify-between m-4 mb-0">
+      <div className="space-y-1 mr-4">
+        <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      {button && button}
+    </div>
+  );
+};
+
+export const HorizontalPathwaysList = ({ pathways, title, description }) => {
+  return (
+    <>
+      <TitleDescription title={title} description={description} />
+      {MobxStore.loading ? (
+        <LoadingSpinner />
+      ) : (
+        <ScrollArea>
+          <div className="flex space-x-4 pb-4">
+            {pathways.map((pathway, i) => (
+              <PathwayCard key={i} pathway={pathway} />
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      )}
+    </>
+  );
+};
 
 const ResponseItem = ({ response, index }) => {
   const [isShowing, setIsShowing] = useState(false);
@@ -209,7 +239,7 @@ const PathwayPlayerHeader = ({
   isMusicPlaying,
   handlePreviousStep,
   setIsMusicPlaying,
-  onClose,
+  setIsEditView,
 }) => {
   return (
     <div className="flex justify-between items-center mb-4">
@@ -234,10 +264,16 @@ const PathwayPlayerHeader = ({
           )}
         </button>
 
-        <button className="mr-2 rounded-full hover:bg-gray-100">
+        <button
+          className="mr-2 rounded-full hover:bg-gray-100"
+          onClick={() => setIsEditView(true)}
+        >
           <HiOutlineCog6Tooth size={20} className="text-slate-600" />
         </button>
-        <button className="rounded-full hover:bg-gray-100" onClick={onClose}>
+        <button
+          className="rounded-full hover:bg-gray-100"
+          onClick={() => setPathwayPlaying(null)}
+        >
           <MdClose size={20} className="text-slate-600" />
         </button>
       </div>
@@ -300,7 +336,7 @@ const Timer = ({ timer, restartTimer, isPlaying, setIsPlaying }) => {
   );
 };
 
-const PathwayPlayer = ({ pathway, onClose }) => {
+export const PathwayPlayer = ({ pathway }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const step = pathway.steps[currentStep];
   const [timer, setTimer] = useState(step.timer);
@@ -310,6 +346,9 @@ const PathwayPlayer = ({ pathway, onClose }) => {
   const [responses, setResponses] = useState([]);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(pathway.autoPlayMusic);
+  const [isEditView, setIsEditView] = useState(false);
+
+  const { setPathwayPlaying } = MobxStore;
 
   const audioRef = useRef(null);
 
@@ -407,7 +446,7 @@ const PathwayPlayer = ({ pathway, onClose }) => {
       setCurrentStep(currentStep - 1);
       setTimer(pathway.steps[currentStep - 1].timer);
     } else {
-      onClose();
+      setPathwayPlaying(null);
     }
   };
 
@@ -418,9 +457,15 @@ const PathwayPlayer = ({ pathway, onClose }) => {
   const canProceed = true;
   // timer === 0 && userInput.length >= step.minText;
 
+  if (isEditView) {
+    return (
+      <PathwayBuilder pathwayToEdit={pathway} setIsEditView={setIsEditView} />
+    );
+  }
+
   if (sessionComplete) {
     return (
-      <div className="flex flex-col items-center max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md mt-4 border border-gray">
+      <div className="flex flex-col max-w-lg  p-6 bg-white rounded-lg shadow-md mt-8 ml-8 border border-gray">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Congratulations!
         </h2>
@@ -445,7 +490,16 @@ const PathwayPlayer = ({ pathway, onClose }) => {
             <ResponseItem response={response} key={index} index={index} />
           ))}
         </div>
-        <Button className="w-full mt-2" onClick={onClose}>
+        <Button
+          className="w-full mt-2"
+          onClick={() => {
+            MobxStore.addLog(pathway.id, {
+              totalDuration,
+              responses,
+            });
+            MobxStore.setPathwayPlaying(null);
+          }}
+        >
           Complete
         </Button>
       </div>
@@ -453,9 +507,8 @@ const PathwayPlayer = ({ pathway, onClose }) => {
   }
 
   return (
-    <div className="flex flex-col max-w-lg mx-auto p-4 bg-white rounded-lg shadow-md mt-4 border border-gray">
+    <div className="flex flex-col max-w-lg  p-4 bg-white rounded-lg shadow-md mt-8 ml-8 border border-gray">
       <audio
-        // controls
         ref={audioRef}
         src={`rpg-music-${pathway.musicPack || 2}.mp3`}
         loop
@@ -466,7 +519,7 @@ const PathwayPlayer = ({ pathway, onClose }) => {
         isMusicPlaying={isMusicPlaying}
         handlePreviousStep={handlePreviousStep}
         setIsMusicPlaying={setIsMusicPlaying}
-        onClose={onClose}
+        setIsEditView={setIsEditView}
       />
 
       <ProgressBar currentStep={currentStep} pathway={pathway} />
@@ -504,7 +557,7 @@ const PathwayPlayer = ({ pathway, onClose }) => {
         disabled={!canProceed}
         onClick={handleNextStep}
       >
-        {step.buttonText}
+        {step.buttonText || "Next"}
       </button>
       {step.allowSkip && (
         <button
@@ -518,12 +571,14 @@ const PathwayPlayer = ({ pathway, onClose }) => {
   );
 };
 
-const PathwayCard = ({ pathway, onPlay }) => {
+const PathwayCard = ({ pathway }) => {
   const { name, description, emoji, time, duration, steps } = pathway;
 
   return (
     <Card className="m-4 p-4 w-80">
-      <EmojiBox emoji={emoji} />
+      <div className="flex justify-center items-center border border-slate w-fit p-4 text-4xl cursor-pointer">
+        {emoji}
+      </div>
       <div className="my-2">
         <div className="text-xl bold mb-2">{name}</div>
         <CardDescription>{description}</CardDescription>
@@ -541,7 +596,10 @@ const PathwayCard = ({ pathway, onPlay }) => {
         </Badge>
       </div>
 
-      <Button className="w-full mt-2" onClick={onPlay}>
+      <Button
+        className="w-full mt-2"
+        onClick={() => MobxStore.setPathwayPlaying(pathway)}
+      >
         <span className="mr-2">Play</span> <FaPlay />
       </Button>
     </Card>
@@ -549,72 +607,44 @@ const PathwayCard = ({ pathway, onPlay }) => {
 };
 
 const QuestsBuilder = observer(() => {
-  const [currentlyPlaying, setCurrentlyPlaying] = useState(false);
-  const handleSignIn = async () => {
-    await MobxStore.signInAnonymously();
-  };
   const pathwaysNotOwnedByUser = MobxStore.pathways.filter(
     (pathway) => pathway.creatorId !== MobxStore.user?.uid
   );
 
-  const { userPathways } = MobxStore;
+  const { userPathways, pathwayPlaying } = MobxStore;
 
   return (
-    <div m2>
-      {MobxStore.user ? (
-        <p>User ID: {MobxStore.user.uid}</p>
-      ) : (
-        <div>
-          <p>No user signed in</p>
-          <Button onClick={handleSignIn}>Sign In Anonymously</Button>
-        </div>
-      )}
+    <div>
       {/* <HeroSection bgImg={backgroundCover} logo={questsLogo} /> */}
 
-      <div>All Firebase Pathways</div>
-      <div>
-        {MobxStore.pathways.map((pathway, i) => (
-          <PathwayCard
-            key={i}
-            pathway={pathway}
-            onPlay={() => {
-              setCurrentlyPlaying(pathway);
-            }}
-          />
-        ))}
-      </div>
-      {/* 
-      <div>EDIT ANOTHERS USER PATHWAY</div>
-      <div>
-        <PathwayBuilder pathwayToEdit={pathwaysNotOwnedByUser[0]} />
-      </div>
-
-      <div>EDIT MY USERS COPIES PATHWAYS</div>
-      <div>
-        <PathwayBuilder pathwayToEdit={userPathways[0]} />
-      </div> */}
-
-      {currentlyPlaying ? (
-        <PathwayPlayer
-          pathway={currentlyPlaying}
-          onClose={() => setCurrentlyPlaying(false)}
-        />
+      {pathwayPlaying ? (
+        <PathwayPlayer pathway={pathwayPlaying} />
       ) : (
-        <div className="flex flex-wrap justify-center">
-          <Link href="/quests-builder/new-pathway">
-            <Button className="">+ New Pathway</Button>
-          </Link>
+        <>
+          <HorizontalPathwaysList
+            pathways={pathways}
+            title="Featured"
+            description="Get started with these pathways."
+          />
 
-          {pathways.map((pathway, i) => (
-            <PathwayCard
-              key={i}
-              pathway={pathway}
-              onPlay={() => {
-                setCurrentlyPlaying(pathway);
-              }}
-            />
-          ))}
-        </div>
+          <HorizontalPathwaysList
+            pathways={MobxStore.pathways}
+            title="Community Pathways"
+            description="Explore what others have built"
+          />
+
+          <HorizontalPathwaysList
+            pathways={userPathways}
+            title="My Pathways"
+            description="From Subcollection Users"
+          />
+
+          {/* <HorizontalPathwaysList
+        pathways={MobxStore.pathways}
+        title="Recently Played"
+        description="Continue where you left off..."
+      /> */}
+        </>
       )}
     </div>
   );

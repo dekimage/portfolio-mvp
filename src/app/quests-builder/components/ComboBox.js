@@ -25,7 +25,13 @@ const exampleOptions = [
   },
 ];
 
-export function Combobox({ options, value, setValue, searchLabel }) {
+export function Combobox({
+  options,
+  value,
+  setValue,
+  searchLabel = "Search",
+  select = false,
+}) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -40,13 +46,13 @@ export function Combobox({ options, value, setValue, searchLabel }) {
           {value
             ? options.find((framework) => framework.value === value)?.label
             : options[0].label}
-          {/* `Search ${searchLabel}`} */}
+
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder={`Search ${searchLabel}`} />
+          {!select && <CommandInput placeholder={`Search ${searchLabel}`} />}
           <CommandEmpty>No {searchLabel} found.</CommandEmpty>
           <CommandGroup>
             {options.map((framework) => (
