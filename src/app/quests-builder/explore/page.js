@@ -11,7 +11,7 @@ const ExplorePage = observer(() => {
     return <PathwayPlayer pathway={pathwayPlaying} />;
   }
   return (
-    <div>
+    <div className="mx-4">
       <HorizontalPathwaysList
         pathways={MobxStore.pathways}
         title="Community Pathways"

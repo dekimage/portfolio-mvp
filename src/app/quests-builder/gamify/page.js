@@ -9,7 +9,7 @@ import Circle from "@uiw/react-color-circle";
 import MobxStore from "../mobx";
 import { observer } from "mobx-react";
 
-const DEFAULT_COLORS = [
+export const DEFAULT_COLORS = [
   "#F44E3B",
   "#FE9200",
   "#FCDC00",
@@ -215,7 +215,7 @@ const Reward = ({
     isPathway, // if its pathway - play pathway, disable only after completed!
   } = reward;
   return (
-    <div className="flex items-center justify-between  p-2 border border-gray-200 rounded-md m-4">
+    <div className="flex items-center justify-between  p-2 border border-gray-200 rounded-md">
       <div className="flex items-center">
         <div
           className="text-2xl mr-2 border-gray border p-4 rounded"
@@ -241,7 +241,7 @@ const Reward = ({
         >
           Edit
         </Button>
-        <Button>Buy</Button>
+        <Button onClick={() => MobxStore.buyReward(reward)}>Buy</Button>
 
         {/* <div className="text-lg ml-2">{timesPurchased}</div> */}
       </div>
@@ -253,7 +253,7 @@ const GamifyPage = observer(() => {
   const [isCreate, setIsCreate] = useState(false);
   const [rewardState, setRewardState] = useState(null);
   return (
-    <div className="h-[90vh]  max-w-[600px]">
+    <div className="h-[90vh]  max-w-[600px] mx-4">
       {isCreate ? (
         <RewardBuilder
           setIsCreate={setIsCreate}
@@ -269,16 +269,19 @@ const GamifyPage = observer(() => {
               <Button onClick={() => setIsCreate(true)}>+ Create Reward</Button>
             }
           />
-          {STATIC_REWARDS.map((reward, index) => (
-            <Reward
-              key={index}
-              reward={reward}
-              setIsCreate={setIsCreate}
-              isCreate={isCreate}
-              rewardState={rewardState}
-              setRewardState={setRewardState}
-            />
-          ))}
+          <div className="flex flex-col gap-4">
+            {STATIC_REWARDS.map((reward, index) => (
+              <Reward
+                key={index}
+                reward={reward}
+                setIsCreate={setIsCreate}
+                isCreate={isCreate}
+                rewardState={rewardState}
+                setRewardState={setRewardState}
+              />
+            ))}
+          </div>
+
           {MobxStore.rewards.map((reward, index) => (
             <Reward
               key={index}

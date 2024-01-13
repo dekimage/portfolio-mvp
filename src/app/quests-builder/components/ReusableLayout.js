@@ -42,12 +42,12 @@ const ReusableLayout = observer(({ children }) => {
     <div>
       <ResizablePanelGroup
         direction="horizontal"
-        className="h-full max-h-[900px] items-stretch"
+        className="h-full max-h-[950px] items-stretch"
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
           maxSize={20}
-          className="max-w-[200px] min-w-[200px]"
+          className="max-w-[200px] min-w-[200px] h-[950px]"
         >
           <div className="flex h-[52px] items-center justify-center px-2">
             {MobxStore.loading ? (
@@ -56,8 +56,8 @@ const ReusableLayout = observer(({ children }) => {
               <div>
                 {MobxStore.user ? (
                   <p>
-                    User: Anonymous
-                    {/* {MobxStore.user.uid} */}
+                    User:
+                    {MobxStore.user.gold} 🥮
                   </p>
                 ) : (
                   <div>

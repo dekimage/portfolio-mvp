@@ -13,15 +13,20 @@ import {
   updateDoc,
   getDocs,
   where,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 
 const MAX_LOGS_PER_DAY = 5; // change this to user controlled per pathway - pathway.maxLogsPerDay
 
 class Store {
   loading = true;
+  logs = [];
   user = null;
   rewards = [];
   pathways = [];
+  recentPathways = [];
+  topPlayedPathways = [];
   userPathways = [];
   pathwayPlaying = false;
 
@@ -55,6 +60,9 @@ class Store {
           }
           this.fetchUserPathways();
           this.fetchUserRewards();
+          this.fetchLogs();
+          this.fetchTopPlayedPathways();
+          this.fetchRecentPathways();
         });
       } else {
         runInAction(() => {
@@ -67,11 +75,81 @@ class Store {
     });
   }
 
-  async fetchUserRewards() {
-    if (!this.user) {
-      console.log("User not authenticated");
-      return;
+  async fetchLogs() {
+    try {
+      const logRef = collection(db, `users/${this.user.uid}/activityLogs`);
+      const querySnapshot = await getDocs(logRef);
+
+      runInAction(() => {
+        this.logs = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      });
+
+      console.log("Logs fetched successfully");
+    } catch (error) {
+      console.error("Error fetching logs:", error);
     }
+  }
+
+  // Fetch Top 5 Most Played Pathways
+  async fetchTopPlayedPathways() {
+    try {
+      const userPathwayRef = collection(
+        db,
+        `users/${this.user.uid}/myPathways`
+      );
+      const topPlayedQuery = query(
+        userPathwayRef,
+        orderBy("playCount", "desc"),
+        limit(5)
+      );
+      const querySnapshot = await getDocs(topPlayedQuery);
+
+      runInAction(() => {
+        // Store top played pathways in MobX store
+        this.topPlayedPathways = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      });
+    } catch (error) {
+      console.error("Error fetching top played pathways:", error);
+    }
+  }
+
+  // Fetch Top 5 Most Recent Pathways
+  async fetchRecentPathways() {
+    console.log(this.user.uid);
+    try {
+      console.log(this.user.uid);
+      const userPathwayRef = collection(
+        db,
+        `users/${this.user.uid}/myPathways`
+      );
+
+      const recentQuery = query(
+        userPathwayRef,
+        orderBy("modifiedAt", "desc"),
+        limit(5)
+      );
+
+      const querySnapshot = await getDocs(recentQuery);
+
+      runInAction(() => {
+        // Store recent pathways in MobX store
+        this.recentPathways = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      });
+    } catch (error) {
+      console.error("Error fetching recent pathways:", error);
+    }
+  }
+
+  async fetchUserRewards() {
     try {
       const userRewardsRef = collection(db, `users/${this.user.uid}/rewards`);
       const querySnapshot = await getDocs(userRewardsRef);
@@ -173,11 +251,6 @@ class Store {
   }
 
   async fetchUserPathways() {
-    if (!this.user) {
-      console.log("User not authenticated");
-      return;
-    }
-
     try {
       const userPathwayRef = collection(
         db,
@@ -380,38 +453,80 @@ class Store {
     }
   }
 
-  async addLog(pathwayId, logData) {
-    if (!this.user) {
-      console.log("User not authenticated");
+  async addLog(pathway, logData) {
+    const canSave = await this.canSaveLog(pathway.id);
+    if (!canSave) {
+      console.error("Log limit reached for the day");
       return;
     }
 
-    const canSave = await this.canSaveLog(pathwayId);
-    if (!canSave) {
-      console.log("Log limit reached for the day");
+    // UPDATE PLAY COUNT on the myPathways's subcollection (for top 5 most played)
+    const userPathwayRef = doc(
+      db,
+      `users/${this.user.uid}/myPathways`,
+      pathway.id
+    );
+    const userPathwayDoc = await getDoc(userPathwayRef);
+    if (userPathwayDoc.exists()) {
+      const currentPlayCount = userPathwayDoc.data().playCount || 0;
+
+      // Increment play count manually
+      await updateDoc(userPathwayRef, {
+        playCount: currentPlayCount + 1,
+      });
+    } else {
+      console.error("Pathway not found");
       return;
     }
 
     try {
       const logRef = collection(db, `users/${this.user.uid}/activityLogs`);
-      await addDoc(logRef, {
-        pathwayId,
+      const docRef = await addDoc(logRef, {
+        pathwayId: pathway.id,
         ...logData,
         timestamp: new Date(),
       });
 
+      runInAction(() => {
+        // Add the new log to the MobX store
+        const newLog = {
+          id: docRef.id,
+          pathwayId: pathway.id,
+          ...logData,
+          timestamp: new Date(),
+        };
+        // Assuming you have a logs array in your store
+        this.logs.push(newLog);
+      });
+
       console.log("Session log saved successfully");
     } catch (error) {
-      console.log("Error saving session log:", error);
+      console.error("Error saving session log:", error);
     }
+
+    // update streak 9MAKE IT AS SEPERATE STREAK FUNCTION
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lastPlayed = new Date(this.user.lastPlayed);
+    lastPlayed.setHours(0, 0, 0, 0);
+
+    if (today - lastPlayed === ONE_DAY) {
+      this.user.streak++;
+    } else if (today - lastPlayed > ONE_DAY) {
+      this.user.streak = 1;
+    }
+
+    this.user.lastPlayed = today;
+
+    // Update the user's streak in Firestore
+    const userRef = doc(db, "users", this.user.uid);
+    await updateDoc(userRef, {
+      streak: this.user.streak,
+      lastPlayed: today,
+    });
   }
 
   async canSaveLog(pathwayId) {
-    if (!this.user) {
-      console.log("User not authenticated");
-      return false;
-    }
-
     try {
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
@@ -426,8 +541,6 @@ class Store {
         where("timestamp", "<=", endOfDay)
       );
 
-      console.log({ logQuery });
-
       const querySnapshot = await getDocs(logQuery);
       console.log({ querySnapshot });
       return querySnapshot.size < MAX_LOGS_PER_DAY;
@@ -435,6 +548,36 @@ class Store {
       console.log("Error checking log availability:", error);
       return false;
     }
+  }
+
+  async buyReward(reward) {
+    if (reward.cost > this.user.gold) {
+      return { error: "Not enough gold" };
+    }
+
+    const newGoldAmount = this.user.gold - reward.cost;
+
+    // Update user's gold in Firebase
+    const userDocRef = doc(db, "users", this.user.uid);
+    await updateDoc(userDocRef, { gold: newGoldAmount });
+
+    // Add log entry for the reward purchase
+    const rewardPurchaseLog = {
+      reward: reward,
+      balanceBefore: this.user.gold,
+      balanceAfter: newGoldAmount,
+      timestamp: new Date(),
+    };
+
+    const logRef = collection(db, `users/${this.user.uid}/activityLogs`);
+    const logDocRef = await addDoc(logRef, rewardPurchaseLog);
+
+    runInAction(() => {
+      this.user.gold = newGoldAmount;
+      this.logs.push({ id: logDocRef.id, ...rewardPurchaseLog });
+    });
+
+    console.log("Reward purchased successfully");
   }
 
   signInAnonymously = async () => {

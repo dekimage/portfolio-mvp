@@ -8,7 +8,7 @@ import questsLogo from "./assets/gamified-quests-logo.png";
 export default function Layout({ children }) {
   return (
     <div>
-      <HeroSection bgImg={backgroundCover} logo={questsLogo} />
+      {/* <HeroSection bgImg={backgroundCover} logo={questsLogo} /> */}
       <ReusableLayout>{children}</ReusableLayout>
     </div>
   );

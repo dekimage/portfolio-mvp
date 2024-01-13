@@ -19,9 +19,28 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import { backgroundCover } from "./layout";
+import { Slider } from "@/components/ui/slider";
+
+// to reusable UI
+const Checkbox = ({ label, checked, onChange }) => {
+  return (
+    <label className="flex items-center space-x-3 cursor-pointer my-2 w-fit">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className={`form-checkbox h-5 w-5 text-black ${
+          checked ? "bg-black" : "bg-white border border-gray-300"
+        }`}
+      />
+      <span className="text-xl">{label}</span>
+    </label>
+  );
+};
 
 const pathways = [
   {
+    id: "aHd3mnf2uw8Ixx7Lp8Ys",
     name: "Plan my Day",
     description: "A simple process to help you focus on what matters most.",
     duration: "3 min",
@@ -37,7 +56,7 @@ const pathways = [
         currentStep: 1,
         buttonText: "Next",
         minText: 5,
-        inputType: "text",
+        responseType: "text",
         allowSkip: false,
         autoplay: false,
       },
@@ -48,7 +67,7 @@ const pathways = [
         currentStep: 2,
         buttonText: "Next",
         minText: 10,
-        inputType: "text",
+        responseType: "text",
         allowSkip: false,
         autoplay: false,
       },
@@ -60,13 +79,14 @@ const pathways = [
         currentStep: 3,
         buttonText: "Complete",
         minText: 10,
-        inputType: "text",
+        responseType: "text",
         allowSkip: true,
         autoplay: false,
       },
     ],
   },
   {
+    id: "LiuGGIFtC38QfzZp93MP",
     name: "Deep Work",
     description:
       "Get 80% of your daily work done in just 90 minutes of laser focused time.",
@@ -83,7 +103,7 @@ const pathways = [
         currentStep: 1,
         buttonText: "Next",
         minText: 0,
-        inputType: "text",
+        responseType: "text",
         allowSkip: true,
         autoplay: false,
       },
@@ -95,7 +115,7 @@ const pathways = [
         currentStep: 2,
         buttonText: "Next",
         minText: 0,
-        inputType: "text",
+        responseType: "text",
         allowSkip: true,
       },
       {
@@ -106,7 +126,7 @@ const pathways = [
         currentStep: 3,
         buttonText: "Next",
         minText: 0,
-        inputType: "text",
+        responseType: "text",
       },
       {
         question:
@@ -116,7 +136,7 @@ const pathways = [
         currentStep: 3,
         buttonText: "Next",
         minText: 0,
-        inputType: "text",
+        responseType: "text",
       },
       {
         question: "Focus Session #2",
@@ -126,11 +146,12 @@ const pathways = [
         currentStep: 3,
         buttonText: "Next",
         minText: 0,
-        inputType: "text",
+        responseType: "text",
       },
     ],
   },
   {
+    id: "LiuGGIFtC38QfzZp93MP",
     name: "Reflect on Learning",
     description: "Learn by reflection",
     duration: "5 min",
@@ -146,7 +167,7 @@ const pathways = [
         currentStep: 1,
         buttonText: "Next",
         minText: 20,
-        inputType: "text",
+        responseType: "text",
         allowSkip: false,
         autoplay: false,
       },
@@ -159,16 +180,66 @@ const pathways = [
         currentStep: 2,
         buttonText: "Next",
         minText: 15,
-        inputType: "text",
+        responseType: "text",
         allowSkip: true,
       },
     ],
   },
 ];
 
+const MoodSelector = ({ mood, onSelectMood, showSingle = false }) => {
+  const moodEmojis = [
+    { mood: "Happy", emoji: "😊" },
+    { mood: "Sad", emoji: "😔" },
+    { mood: "Angry", emoji: "😠" },
+    { mood: "Surprised", emoji: "😲" },
+    { mood: "Calm", emoji: "😌" },
+  ];
+
+  const [selectedMood, setSelectedMood] = useState(mood || "");
+
+  const handleMoodClick = (mood) => {
+    setSelectedMood(mood);
+    onSelectMood(mood);
+  };
+
+  if (showSingle) {
+    const { mood, emoji } = moodEmojis.find((m) => m.mood === selectedMood) || {
+      mood: "",
+      emoji: "",
+    };
+    return (
+      <div
+        key={mood}
+        className={`text-4xl ${
+          selectedMood === mood ? "opacity-100" : "opacity-60"
+        } focus:outline-none`}
+      >
+        {emoji}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-center gap-2 mb-8">
+      {moodEmojis.map(({ mood, emoji }) => (
+        <button
+          key={mood}
+          className={`text-4xl ${
+            selectedMood === mood ? "opacity-100" : "opacity-60"
+          } focus:outline-none`}
+          onClick={() => handleMoodClick(mood)}
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+  );
+};
+
 export const TitleDescription = ({ title, description, button }) => {
   return (
-    <div className="flex items-center justify-between m-4 mb-0">
+    <div className="flex items-center justify-between my-4">
       <div className="space-y-1 mr-4">
         <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
         <p className="text-sm text-muted-foreground">{description}</p>
@@ -180,13 +251,13 @@ export const TitleDescription = ({ title, description, button }) => {
 
 export const HorizontalPathwaysList = ({ pathways, title, description }) => {
   return (
-    <>
+    <div className="mb-8">
       <TitleDescription title={title} description={description} />
       {MobxStore.loading ? (
         <LoadingSpinner />
       ) : (
         <ScrollArea>
-          <div className="flex space-x-4 pb-4">
+          <div className="flex gap-4">
             {pathways.map((pathway, i) => (
               <PathwayCard key={i} pathway={pathway} />
             ))}
@@ -194,7 +265,7 @@ export const HorizontalPathwaysList = ({ pathways, title, description }) => {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       )}
-    </>
+    </div>
   );
 };
 
@@ -205,12 +276,7 @@ const ResponseItem = ({ response, index }) => {
     <div className="flex flex-col bg-gray-100 mb-2 p-2 rounded-lg w-full">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">
-          Step {index + 1}:{" "}
-          {response.skipped ? (
-            <div className="text-yellow-400">Skipped</div>
-          ) : (
-            <div className="text-green-500">Answered</div>
-          )}
+          Step {index + 1}:
         </span>
         <span className="text-sm text-gray-500">
           {response.timeSpent} seconds
@@ -228,7 +294,18 @@ const ResponseItem = ({ response, index }) => {
         )}
       </div>
       {isShowing && (
-        <div className="rounded-lg mt-2 p-4 bg-gray-200">{response.input}</div>
+        <div className="rounded-lg mt-2 p-4 bg-gray-200">
+          {response.responseType == "checklist" &&
+            response.response.map((r) => <div key={r}>{r}</div>)}
+
+          {response.responseType == "text" && <div>{response.response}</div>}
+
+          {response.responseType == "slider" && <div>{response.response}</div>}
+
+          {response.responseType == "mood" && (
+            <MoodSelector mood={response.response} showSingle />
+          )}
+        </div>
       )}
     </div>
   );
@@ -342,11 +419,16 @@ export const PathwayPlayer = ({ pathway }) => {
   const [timer, setTimer] = useState(step.timer);
   const [totalDuration, setTotalDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(step.autoplay);
-  const [userInput, setUserInput] = useState("");
+  const [userInput, setUserInput] = useState();
+  const [userInputCheckbox, setUserInputCheckbox] = useState([]);
   const [responses, setResponses] = useState([]);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(pathway.autoPlayMusic);
   const [isEditView, setIsEditView] = useState(false);
+
+  const [distractions, setDistractions] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [startTime, setStartTime] = useState(Date.now());
 
   const { setPathwayPlaying } = MobxStore;
 
@@ -413,7 +495,15 @@ export const PathwayPlayer = ({ pathway }) => {
   const handleNextStep = () => {
     const newResponses = [
       ...responses,
-      { input: userInput, timeSpent: step.timer - timer },
+      {
+        question: step.question,
+        responseType: step.responseType,
+        // variable response type based on the responseType
+        response: userInput || userInputCheckbox || "",
+        timeSpent: step.timer - timer,
+        skipped: false,
+        // idleTime: 0,
+      },
     ];
     setResponses(newResponses);
 
@@ -429,7 +519,13 @@ export const PathwayPlayer = ({ pathway }) => {
   const handleSkipStep = () => {
     const newResponses = [
       ...responses,
-      { input: "", timeSpent: 0, skipped: true },
+      {
+        question: step.question,
+        responseType: step.responseType,
+        response: "",
+        timeSpent: 0,
+        skipped: true,
+      },
     ];
     setResponses(newResponses);
 
@@ -493,11 +589,19 @@ export const PathwayPlayer = ({ pathway }) => {
         <Button
           className="w-full mt-2"
           onClick={() => {
-            MobxStore.addLog(pathway.id, {
+            MobxStore.addLog(pathway, {
+              pathway: pathway,
+              startTime,
               totalDuration,
+              timestamp: Date.now(),
+              ...(distractions && {
+                distractions: distractions,
+              }),
+              ...(feedback && { feedback }),
+              ...(pathway.gold && { goldEarned: pathway.gold }),
               responses,
             });
-            MobxStore.setPathwayPlaying(null);
+            setPathwayPlaying(false);
           }}
         >
           Complete
@@ -543,12 +647,61 @@ export const PathwayPlayer = ({ pathway }) => {
         {step.context && <div className="py-2 text-sm">💡 {step.context}</div>}
       </h2>
 
-      <textarea
-        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent mb-4 min-h-[250px]"
-        value={userInput}
-        onChange={(e) => setUserInput(e.target.value)}
-        placeholder="Your response..."
-      />
+      {step.responseType === "text" && (
+        <textarea
+          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent mb-4 min-h-[250px]"
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          placeholder="Your response..."
+        />
+      )}
+
+      {step.responseType === "checklist" && (
+        <div className="my-4">
+          {step.options?.map((option, optionIndex) => (
+            <Checkbox
+              key={optionIndex}
+              label={option}
+              checked={(userInputCheckbox || []).includes(option)}
+              onChange={() => {
+                setUserInputCheckbox((prevUserInput) =>
+                  prevUserInput.includes(option)
+                    ? prevUserInput.filter((item) => item !== option)
+                    : [...prevUserInput, option]
+                );
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {step.responseType === "slider" && (
+        <div className="mb-8">
+          <Slider
+            defaultValue={[userInput || 1]}
+            max={step.sliderMax || 10}
+            step={step.sliderMin || 1}
+            onValueChange={(value) => {
+              setUserInput(value);
+            }}
+            className="mt-4"
+          />
+          <div className="flex justify-between mt-2">
+            <div>{step.sliderMin}</div>
+            <div>{step.sliderMax}</div>
+          </div>
+          <div className="text-2xl w-full flex justify-center">
+            {userInput || 1} / {step.sliderMax || 10}
+          </div>
+        </div>
+      )}
+
+      {step.responseType === "mood" && (
+        <MoodSelector
+          mood={userInput}
+          onSelectMood={(mood) => setUserInput(mood)}
+        />
+      )}
 
       <button
         className={`w-full py-3 rounded text-white ${
@@ -572,11 +725,15 @@ export const PathwayPlayer = ({ pathway }) => {
 };
 
 const PathwayCard = ({ pathway }) => {
-  const { name, description, emoji, time, duration, steps } = pathway;
+  const { name, description, emoji, time, duration, steps, backgroundColor } =
+    pathway;
 
   return (
-    <Card className="m-4 p-4 w-80">
-      <div className="flex justify-center items-center border border-slate w-fit p-4 text-4xl cursor-pointer">
+    <Card className="p-4 w-64 flex flex-col justify-between">
+      <div
+        className="flex justify-center items-center border border-slate w-fit p-4 text-4xl"
+        style={{ backgroundColor: backgroundColor }}
+      >
         {emoji}
       </div>
       <div className="my-2">
@@ -614,23 +771,29 @@ const QuestsBuilder = observer(() => {
   const { userPathways, pathwayPlaying } = MobxStore;
 
   return (
-    <div>
+    <div className="m-4">
       {/* <HeroSection bgImg={backgroundCover} logo={questsLogo} /> */}
 
       {pathwayPlaying ? (
         <PathwayPlayer pathway={pathwayPlaying} />
       ) : (
         <>
-          <HorizontalPathwaysList
+          {/* <HorizontalPathwaysList
             pathways={pathways}
             title="Featured"
             description="Get started with these pathways."
+          /> */}
+
+          <HorizontalPathwaysList
+            pathways={MobxStore.recentPathways}
+            title="Recently Played"
+            description="Continue where you left off..."
           />
 
           <HorizontalPathwaysList
-            pathways={MobxStore.pathways}
-            title="Community Pathways"
-            description="Explore what others have built"
+            pathways={MobxStore.topPlayedPathways}
+            title="Most Played"
+            description="Continue with your most played pathways."
           />
 
           <HorizontalPathwaysList
@@ -638,12 +801,6 @@ const QuestsBuilder = observer(() => {
             title="My Pathways"
             description="From Subcollection Users"
           />
-
-          {/* <HorizontalPathwaysList
-        pathways={MobxStore.pathways}
-        title="Recently Played"
-        description="Continue where you left off..."
-      /> */}
         </>
       )}
     </div>
