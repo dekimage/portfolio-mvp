@@ -20,6 +20,13 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import { backgroundCover } from "./layout";
 import { Slider } from "@/components/ui/slider";
+import { MoreVertical, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // to reusable UI
 const Checkbox = ({ label, checked, onChange }) => {
@@ -239,7 +246,7 @@ const MoodSelector = ({ mood, onSelectMood, showSingle = false }) => {
 
 export const TitleDescription = ({ title, description, button }) => {
   return (
-    <div className="flex items-center justify-between my-4">
+    <div className="flex items-center justify-between mb-4">
       <div className="space-y-1 mr-4">
         <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
         <p className="text-sm text-muted-foreground">{description}</p>
@@ -316,7 +323,7 @@ const PathwayPlayerHeader = ({
   isMusicPlaying,
   handlePreviousStep,
   setIsMusicPlaying,
-  setIsEditView,
+  setIsPathwayEditView,
 }) => {
   return (
     <div className="flex justify-between items-center mb-4">
@@ -343,7 +350,7 @@ const PathwayPlayerHeader = ({
 
         <button
           className="mr-2 rounded-full hover:bg-gray-100"
-          onClick={() => setIsEditView(true)}
+          onClick={() => setIsPathwayEditView(true)}
         >
           <HiOutlineCog6Tooth size={20} className="text-slate-600" />
         </button>
@@ -424,7 +431,6 @@ export const PathwayPlayer = ({ pathway }) => {
   const [responses, setResponses] = useState([]);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(pathway.autoPlayMusic);
-  const [isEditView, setIsEditView] = useState(false);
 
   const [distractions, setDistractions] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -433,6 +439,8 @@ export const PathwayPlayer = ({ pathway }) => {
   const { setPathwayPlaying } = MobxStore;
 
   const audioRef = useRef(null);
+
+  const { isPathwayEditView, setIsPathwayEditView } = MobxStore;
 
   useEffect(() => {
     const audioElement = audioRef.current;
@@ -462,9 +470,9 @@ export const PathwayPlayer = ({ pathway }) => {
 
   useEffect(() => {
     if (isMusicPlaying) {
-      audioRef.current.play();
+      audioRef?.current?.play();
     } else {
-      audioRef.current.pause();
+      audioRef?.current?.pause();
     }
   }, [isMusicPlaying]);
 
@@ -553,10 +561,8 @@ export const PathwayPlayer = ({ pathway }) => {
   const canProceed = true;
   // timer === 0 && userInput.length >= step.minText;
 
-  if (isEditView) {
-    return (
-      <PathwayBuilder pathwayToEdit={pathway} setIsEditView={setIsEditView} />
-    );
+  if (isPathwayEditView) {
+    return <PathwayBuilder pathwayToEdit={pathway} />;
   }
 
   if (sessionComplete) {
@@ -623,7 +629,7 @@ export const PathwayPlayer = ({ pathway }) => {
         isMusicPlaying={isMusicPlaying}
         handlePreviousStep={handlePreviousStep}
         setIsMusicPlaying={setIsMusicPlaying}
-        setIsEditView={setIsEditView}
+        setIsPathwayEditView={setIsPathwayEditView}
       />
 
       <ProgressBar currentStep={currentStep} pathway={pathway} />
@@ -724,44 +730,75 @@ export const PathwayPlayer = ({ pathway }) => {
   );
 };
 
-const PathwayCard = ({ pathway }) => {
+const PathwayCard = observer(({ pathway }) => {
   const { name, description, emoji, time, duration, steps, backgroundColor } =
     pathway;
+  const { setIsPathwayEditView, setPathwayPlaying, isMobileOpen } = MobxStore;
 
   return (
-    <Card className="p-4 w-64 flex flex-col justify-between">
-      <div
-        className="flex justify-center items-center border border-slate w-fit p-4 text-4xl"
-        style={{ backgroundColor: backgroundColor }}
-      >
-        {emoji}
-      </div>
-      <div className="my-2">
-        <div className="text-xl bold mb-2">{name}</div>
-        <CardDescription>{description}</CardDescription>
-      </div>
-      <div className="my-2">
-        <Badge variant="screen" className="mr-2">
-          {duration}
-        </Badge>
-        <Badge variant="screen" className="mr-2">
-          {steps?.length} Steps
-        </Badge>
+    !isMobileOpen && (
+      <Card className="p-4 w-64 flex flex-col justify-between relative">
+        <div className="flex flex-grow flex-col">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute top-[16px] right-[16px] p-2"
+              >
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">More</span>
+                {/* <HiOutlineCog6Tooth size={20} className="text-slate-600" /> */}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setPathwayPlaying(pathway);
+                  setIsPathwayEditView(false);
+                }}
+              >
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem>View Stats</DropdownMenuItem>
+              <DropdownMenuItem>Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-        <Badge variant="screen" className="mr-2">
-          {time}
-        </Badge>
-      </div>
+          <div
+            className="flex justify-center items-center border border-slate w-fit p-4 text-4xl"
+            style={{ backgroundColor: backgroundColor }}
+          >
+            {emoji}
+          </div>
+          <div className="my-2">
+            <div className="text-xl bold mb-2">{name}</div>
+            <CardDescription>{description}</CardDescription>
+          </div>
+          <div className="my-2">
+            <Badge variant="screen" className="mr-2">
+              {duration}
+            </Badge>
+            <Badge variant="screen" className="mr-2">
+              {steps?.length} Steps
+            </Badge>
 
-      <Button
-        className="w-full mt-2"
-        onClick={() => MobxStore.setPathwayPlaying(pathway)}
-      >
-        <span className="mr-2">Play</span> <FaPlay />
-      </Button>
-    </Card>
+            <Badge variant="screen" className="mr-2">
+              {time}
+            </Badge>
+          </div>
+        </div>
+
+        <Button
+          className="w-full mt-2"
+          onClick={() => MobxStore.setPathwayPlaying(pathway)}
+        >
+          <span className="mr-2">Play</span> <FaPlay />
+        </Button>
+      </Card>
+    )
   );
-};
+});
 
 const QuestsBuilder = observer(() => {
   const pathwaysNotOwnedByUser = MobxStore.pathways.filter(
@@ -771,7 +808,7 @@ const QuestsBuilder = observer(() => {
   const { userPathways, pathwayPlaying } = MobxStore;
 
   return (
-    <div className="m-4">
+    <div className="m-4 sm:mx-8">
       {/* <HeroSection bgImg={backgroundCover} logo={questsLogo} /> */}
 
       {pathwayPlaying ? (

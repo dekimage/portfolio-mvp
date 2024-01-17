@@ -8,10 +8,13 @@ import { buttonVariants } from "@/components/ui/button";
 
 export function VerticalNavbar({ links }) {
   return (
-    <div className="group flex flex-col gap-4 py-2">
+    <div className="group flex flex-col gap-4 py-2 w-full">
       <nav className="grid gap-1 px-2">
         {links.map((link, index) => (
           <Link
+            onClick={() => {
+              link.callBack && link.callBack();
+            }}
             key={index}
             href={`/${link.href}`}
             className={cn(

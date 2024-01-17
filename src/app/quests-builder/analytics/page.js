@@ -290,20 +290,22 @@ const LogCardReward = ({ log }) => {
 
 const LogsPage = observer(() => {
   const [date, setDate] = useState(new Date());
+  const { isMobileOpen } = MobxStore;
 
   return (
-    <div className="mx-4">
+    <div className="m-4 sm:mx-8">
       <TitleDescription
         title="Logs"
         description="Analyse past data to improve your journey."
       />
-
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        className="rounded-md border w-fit mt-4 mb-8"
-      />
+      {!isMobileOpen && (
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          className="rounded-md border w-fit mt-4 mb-8"
+        />
+      )}
 
       <div className="flex flex-col gap-4">
         {MobxStore.logs.map((log, index) => {

@@ -23,6 +23,14 @@ export const DEFAULT_COLORS = [
   "#DABFFF",
   "#0E6BA8",
   "#3160ED",
+  "#2a9d8f",
+  "#b5838d",
+  "#6d6875",
+  "#e5989b",
+  "#edf6f9",
+  "#f5ebe0",
+  "#ffb5a7",
+  "#adc178",
 ];
 
 const STATIC_MAX_PURCHASE_LIMITS = [
@@ -103,7 +111,7 @@ const RewardBuilder = ({ setIsCreate, rewardState, setRewardState }) => {
         title="Create New Reward"
         description="Buy rewards using coins you earn by completing pathways"
       />
-      <div className="ml-4 mx-4 flex flex-col">
+      <div className="flex flex-col">
         <label className="mt-4 text-md font-medium">Icon</label>
         <DialogEmojiPicker
           emoji={reward.emoji}
@@ -253,7 +261,7 @@ const GamifyPage = observer(() => {
   const [isCreate, setIsCreate] = useState(false);
   const [rewardState, setRewardState] = useState(null);
   return (
-    <div className="h-[90vh]  max-w-[600px] mx-4">
+    <div className="h-[90vh]  max-w-[600px] m-4 sm:mx-8">
       {isCreate ? (
         <RewardBuilder
           setIsCreate={setIsCreate}
@@ -269,7 +277,7 @@ const GamifyPage = observer(() => {
               <Button onClick={() => setIsCreate(true)}>+ Create Reward</Button>
             }
           />
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mb-4">
             {STATIC_REWARDS.map((reward, index) => (
               <Reward
                 key={index}

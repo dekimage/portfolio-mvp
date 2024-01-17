@@ -270,7 +270,7 @@ const CheckboxOptions = ({ stepIndex, options, setOptions }) => {
   );
 };
 
-const PathwayBuilder = ({ pathwayToEdit = false, setIsEditView }) => {
+const PathwayBuilder = ({ pathwayToEdit = false }) => {
   const router = useRouter();
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [openMusic, setOpenMusic] = useState(false);
@@ -278,6 +278,7 @@ const PathwayBuilder = ({ pathwayToEdit = false, setIsEditView }) => {
   const [musicTrack, setMusicTrack] = useState("");
   const [pathway, setPathway] = useState(pathwayToEdit || DEFAULT_PATHWAY);
   const [hex, setHex] = useState("#F44E3B");
+  const { editFromInside, setPathwayPlaying, setIsPathwayEditView } = MobxStore;
 
   useEffect(() => {
     if (pathwayToEdit) {
@@ -337,7 +338,7 @@ const PathwayBuilder = ({ pathwayToEdit = false, setIsEditView }) => {
       if (pathwayToEdit.isCopy) {
         // Editing user's own pathway copy
         await MobxStore.updateUserPathway(pathwayToEdit.id, pathway);
-        setIsEditView(false);
+        setIsPathwayEditView(false);
         return;
       }
 
@@ -347,7 +348,7 @@ const PathwayBuilder = ({ pathwayToEdit = false, setIsEditView }) => {
       ) {
         // Edit my own template
         await MobxStore.updatePathway(pathwayToEdit.id, pathway);
-        setIsEditView(false);
+        setIsPathwayEditView(false);
         return;
       }
       // Make a copy from someone else's template
@@ -367,7 +368,7 @@ const PathwayBuilder = ({ pathwayToEdit = false, setIsEditView }) => {
         await MobxStore.updateUserPathway(copyId, pathwayWithoutId);
       }
 
-      setIsEditView(false);
+      setIsPathwayEditView(false);
     }
 
     if (!pathwayToEdit) {
@@ -385,20 +386,26 @@ const PathwayBuilder = ({ pathwayToEdit = false, setIsEditView }) => {
   };
 
   return (
-    <div className="mt-4 flex ml-8">
+    <div className="m-4 sm:m-8 flex">
       <div className="flex flex-col bg-white rounded-lg max-w-[480px] w-full">
         <Button
           className="w-fit mb-4"
           variant="outline"
           onClick={() => {
-            setIsEditView
-              ? setIsEditView(false)
-              : router.push("/quests-builder");
+            if (editFromInside) {
+              setIsPathwayEditView(false);
+            } else {
+              setPathwayPlaying(false);
+              setIsPathwayEditView(false);
+            }
           }}
         >
           <ChevronLeft size={20} />
           Back
         </Button>
+        <div className="text-2xl font-bold">
+          {pathwayToEdit ? "Edit" : "Create New"} Pathway
+        </div>
         <label className="mt-4 text-md font-medium">Icon</label>
         <DialogEmojiPicker
           emoji={pathway.emoji}
@@ -408,6 +415,7 @@ const PathwayBuilder = ({ pathwayToEdit = false, setIsEditView }) => {
 
         <label className="mt-4 mb-2 text-md font-medium">Background</label>
         <Circle
+          style={{ position: "relative", zIndex: "100 !important" }}
           colors={DEFAULT_COLORS}
           color={hex}
           onChange={(color) => {

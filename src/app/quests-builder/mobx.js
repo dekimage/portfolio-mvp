@@ -16,11 +16,13 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
+import Logger from "@/utils/logger";
 
+const logger = new Logger({ debugEnabled: false }); // switch to true to see console logs from firebase
 const MAX_LOGS_PER_DAY = 5; // change this to user controlled per pathway - pathway.maxLogsPerDay
 
 class Store {
-  loading = true;
+  // App Data
   logs = [];
   user = null;
   rewards = [];
@@ -28,13 +30,20 @@ class Store {
   recentPathways = [];
   topPlayedPathways = [];
   userPathways = [];
+  // App States
+  isMobileOpen = false;
+  loading = true;
   pathwayPlaying = false;
+  isPathwayEditView = false;
+  editFromInside = true;
 
   constructor() {
     makeAutoObservable(this);
     this.initializeAuth();
     this.fetchPathways();
     this.setPathwayPlaying = this.setPathwayPlaying.bind(this);
+    this.setIsPathwayEditView = this.setIsPathwayEditView.bind(this);
+    this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
   }
 
   initializeAuth() {
@@ -87,9 +96,9 @@ class Store {
         }));
       });
 
-      console.log("Logs fetched successfully");
+      logger.debug("Logs fetched successfully");
     } catch (error) {
-      console.error("Error fetching logs:", error);
+      logger.error("Error fetching logs:", error);
     }
   }
 
@@ -115,15 +124,15 @@ class Store {
         }));
       });
     } catch (error) {
-      console.error("Error fetching top played pathways:", error);
+      logger.error("Error fetching top played pathways:", error);
     }
   }
 
   // Fetch Top 5 Most Recent Pathways
   async fetchRecentPathways() {
-    console.log(this.user.uid);
+    logger.debug(this.user.uid);
     try {
-      console.log(this.user.uid);
+      logger.debug(this.user.uid);
       const userPathwayRef = collection(
         db,
         `users/${this.user.uid}/myPathways`
@@ -145,7 +154,7 @@ class Store {
         }));
       });
     } catch (error) {
-      console.error("Error fetching recent pathways:", error);
+      logger.error("Error fetching recent pathways:", error);
     }
   }
 
@@ -161,9 +170,9 @@ class Store {
         }));
       });
 
-      console.log("User rewards fetched successfully");
+      logger.debug("User rewards fetched successfully");
     } catch (error) {
-      console.log("Error fetching user rewards:", error);
+      logger.debug("Error fetching user rewards:", error);
     }
   }
 
@@ -173,7 +182,7 @@ class Store {
 
       const docRef = await addDoc(userRewardsRef, reward);
 
-      console.log("Reward added with ID: ", docRef.id);
+      logger.debug("Reward added with ID: ", docRef.id);
       runInAction(() => {
         this.rewards.push({
           id: docRef.id,
@@ -182,7 +191,7 @@ class Store {
       });
       return docRef.id; // Return the ID for further use
     } catch (error) {
-      console.log("Error adding reward: ", error);
+      logger.debug("Error adding reward: ", error);
     }
   }
 
@@ -196,7 +205,7 @@ class Store {
       );
       await setDoc(userRewardRef, reward);
 
-      console.log("Reward updated successfully with ID:", reward.id);
+      logger.debug("Reward updated successfully with ID:", reward.id);
       runInAction(() => {
         const index = this.rewards.findIndex((r) => r.id === reward.id);
         if (index !== -1) {
@@ -204,7 +213,7 @@ class Store {
         }
       });
     } catch (error) {
-      console.log("Error updating reward:", error);
+      logger.debug("Error updating reward:", error);
     }
   }
 
@@ -217,15 +226,21 @@ class Store {
       );
       await deleteDoc(userRewardRef);
 
-      console.log("Reward deleted successfully with ID:", reward.id);
+      logger.debug("Reward deleted successfully with ID:", reward.id);
 
       // Update Mobx variable
       runInAction(() => {
         this.rewards = this.rewards.filter((r) => r.id !== reward.id);
       });
     } catch (error) {
-      console.log("Error deleting reward:", error);
+      logger.debug("Error deleting reward:", error);
     }
+  }
+
+  setIsMobileOpen(isMobileOpen) {
+    runInAction(() => {
+      this.isMobileOpen = isMobileOpen;
+    });
   }
 
   setPathwayPlaying(pathway) {
@@ -235,6 +250,13 @@ class Store {
       } else {
         this.pathwayPlaying = false;
       }
+    });
+  }
+
+  setIsPathwayEditView(editFromInside = true) {
+    runInAction(() => {
+      this.isPathwayEditView = !this.isPathwayEditView;
+      this.editFromInside = editFromInside;
     });
   }
 
@@ -266,13 +288,13 @@ class Store {
         }));
       });
     } catch (error) {
-      console.log("Error fetching user pathways:", error);
+      logger.debug("Error fetching user pathways:", error);
     }
   }
 
   addUserPathway = async (pathway) => {
     if (!this.user) {
-      console.log("Error: User not authenticated.");
+      logger.debug("Error: User not authenticated.");
       return;
     }
 
@@ -282,16 +304,16 @@ class Store {
         `users/${this.user.uid}/myPathways`
       );
       const docRef = await addDoc(userPathwayRef, pathway);
-      console.log("User pathway created with ID: ", docRef.id);
+      logger.debug("User pathway created with ID: ", docRef.id);
       return docRef.id; // Return the ID for further use
     } catch (error) {
-      console.log("Error adding user pathway: ", error);
+      logger.debug("Error adding user pathway: ", error);
     }
   };
 
   publishPathway = async (pathwayId) => {
     if (!this.user) {
-      console.log("Error: User not authenticated.");
+      logger.debug("Error: User not authenticated.");
       return;
     }
 
@@ -304,7 +326,7 @@ class Store {
       const userPathwayDoc = await getDoc(userPathwayRef);
 
       if (!userPathwayDoc.exists()) {
-        console.log("Error: Pathway not found.");
+        logger.debug("Error: Pathway not found.");
         return;
       }
 
@@ -314,15 +336,15 @@ class Store {
         published: true,
       };
       const docRef = await addDoc(collection(db, "pathways"), publicPathway);
-      console.log("Pathway published with ID: ", docRef.id);
+      logger.debug("Pathway published with ID: ", docRef.id);
     } catch (error) {
-      console.log("Error publishing pathway: ", error);
+      logger.debug("Error publishing pathway: ", error);
     }
   };
 
   // addPathway = async (pathway) => {
   //   if (!this.user) {
-  //     console.log("Error: User not authenticated.");
+  //     logger.debug("Error: User not authenticated.");
   //     return;
   //   }
 
@@ -332,14 +354,14 @@ class Store {
   //       collection(db, "pathways"),
   //       pathwayWithCreator
   //     );
-  //     console.log("Pathway created with ID: ", docRef.id);
+  //     logger.debug("Pathway created with ID: ", docRef.id);
   //   } catch (error) {
-  //     console.log("Error adding pathway: ", error);
+  //     logger.debug("Error adding pathway: ", error);
   //   }
   // };
 
   async updatePathway(pathwayId, pathwayData) {
-    console.log(
+    logger.debug(
       "Attempting to update pathway with ID:",
       pathwayId,
       "Data:",
@@ -348,18 +370,18 @@ class Store {
     try {
       const docRef = doc(db, "pathways", pathwayId);
       await updateDoc(docRef, pathwayData);
-      console.log("Pathway updated successfully with ID:", pathwayId);
+      logger.debug("Pathway updated successfully with ID:", pathwayId);
       // Optionally, fetch the document again to verify the update
       const updatedDoc = await getDoc(docRef);
-      console.log("Updated document data:", updatedDoc.data());
+      logger.debug("Updated document data:", updatedDoc.data());
     } catch (error) {
-      console.log("Error updating pathway:", error);
+      logger.debug("Error updating pathway:", error);
     }
   }
 
   async updateUserPathway(userPathwayId, pathwayData) {
     if (!this.user) {
-      console.log("User not authenticated");
+      logger.debug("User not authenticated");
       return;
     }
 
@@ -371,18 +393,18 @@ class Store {
       );
       await updateDoc(userPathwayRef, pathwayData);
     } catch (error) {
-      console.log("Error updating user pathway: ", error);
+      logger.debug("Error updating user pathway: ", error);
     }
   }
 
   // Function to create a copy of the original pathway in the user's subcollection
   async createPathwayCopy(originalPathwayId) {
-    console.log(
+    logger.debug(
       "Attempting to create pathway copy with ID:",
       originalPathwayId
     );
     if (!this.user) {
-      console.log("User not authenticated");
+      logger.debug("User not authenticated");
       return;
     }
 
@@ -392,7 +414,7 @@ class Store {
       const originalPathwayDoc = await getDoc(originalPathwayRef);
 
       if (!originalPathwayDoc.exists()) {
-        console.log("Original pathway not found");
+        logger.debug("Original pathway not found");
         return;
       }
 
@@ -403,7 +425,7 @@ class Store {
 
       const { id, ...pathwayDataWithoutId } = originalPathwayData;
 
-      console.log("Original pathway data:", pathwayDataWithoutId);
+      logger.debug("Original pathway data:", pathwayDataWithoutId);
 
       // Create a copy in the user's subcollection
       const userPathwayRef = collection(
@@ -418,16 +440,16 @@ class Store {
         modifiedAt: new Date(),
       });
 
-      console.log("Pathway copy created successfully");
+      logger.debug("Pathway copy created successfully");
       return docRef.id;
     } catch (error) {
-      console.log("Error creating pathway copy:", error);
+      logger.debug("Error creating pathway copy:", error);
     }
   }
 
   async getOrCreateUserPathwayCopy(originalPathwayId) {
     if (!this.user) {
-      console.log("User not authenticated");
+      logger.debug("User not authenticated");
       return null;
     }
 
@@ -448,7 +470,7 @@ class Store {
         return this.createPathwayCopy(originalPathwayId);
       }
     } catch (error) {
-      console.log("Error in getOrCreateUserPathwayCopy:", error);
+      logger.debug("Error in getOrCreateUserPathwayCopy:", error);
       return null;
     }
   }
@@ -456,7 +478,7 @@ class Store {
   async addLog(pathway, logData) {
     const canSave = await this.canSaveLog(pathway.id);
     if (!canSave) {
-      console.error("Log limit reached for the day");
+      logger.error("Log limit reached for the day");
       return;
     }
 
@@ -475,7 +497,7 @@ class Store {
         playCount: currentPlayCount + 1,
       });
     } else {
-      console.error("Pathway not found");
+      logger.error("Pathway not found");
       return;
     }
 
@@ -499,9 +521,9 @@ class Store {
         this.logs.push(newLog);
       });
 
-      console.log("Session log saved successfully");
+      logger.debug("Session log saved successfully");
     } catch (error) {
-      console.error("Error saving session log:", error);
+      logger.error("Error saving session log:", error);
     }
 
     // update streak 9MAKE IT AS SEPERATE STREAK FUNCTION
@@ -511,6 +533,7 @@ class Store {
     lastPlayed.setHours(0, 0, 0, 0);
 
     if (today - lastPlayed === ONE_DAY) {
+      0;
       this.user.streak++;
     } else if (today - lastPlayed > ONE_DAY) {
       this.user.streak = 1;
@@ -542,10 +565,10 @@ class Store {
       );
 
       const querySnapshot = await getDocs(logQuery);
-      console.log({ querySnapshot });
+      logger.debug({ querySnapshot });
       return querySnapshot.size < MAX_LOGS_PER_DAY;
     } catch (error) {
-      console.log("Error checking log availability:", error);
+      logger.debug("Error checking log availability:", error);
       return false;
     }
   }
@@ -577,12 +600,12 @@ class Store {
       this.logs.push({ id: logDocRef.id, ...rewardPurchaseLog });
     });
 
-    console.log("Reward purchased successfully");
+    logger.debug("Reward purchased successfully");
   }
 
   signInAnonymously = async () => {
     await signInAnonymously(auth);
-    console.log("Signed in anonymously");
+    logger.debug("Signed in anonymously");
   };
 }
 
