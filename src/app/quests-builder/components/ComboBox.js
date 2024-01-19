@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { DialogTrigger } from "@/components/ui/dialog";
 
 const exampleOptions = [
   {
@@ -31,6 +32,7 @@ export function Combobox({
   setValue,
   searchLabel = "Search",
   select = false,
+  createButton = false,
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -74,6 +76,21 @@ export function Combobox({
               </CommandItem>
             ))}
           </CommandGroup>
+          {createButton && (
+            <CommandGroup>
+              <DialogTrigger asChild>
+                <CommandItem
+                  onSelect={() => {
+                    setOpen(false);
+                    setShowNewTeamDialog(true);
+                  }}
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  Create New
+                </CommandItem>
+              </DialogTrigger>
+            </CommandGroup>
+          )}
         </Command>
       </PopoverContent>
     </Popover>

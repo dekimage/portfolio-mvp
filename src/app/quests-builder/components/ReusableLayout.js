@@ -4,7 +4,13 @@ import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 import { VerticalNavbar } from "./VerticalNavbar";
 
-import { Gamepad2, GaugeCircle, LayoutDashboard, Search } from "lucide-react";
+import {
+  CalendarCheck,
+  Gamepad2,
+  GaugeCircle,
+  LayoutDashboard,
+  Search,
+} from "lucide-react";
 import MobxStore from "../mobx";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
@@ -55,6 +61,12 @@ const ReusableLayout = observer(({ children }) => {
                   icon: LayoutDashboard,
                   variant: isRoute("quests-builder"),
                   href: "quests-builder",
+                },
+                {
+                  title: "Today",
+                  icon: CalendarCheck,
+                  variant: isRoute("Today"),
+                  href: "quests-builder/today",
                 },
                 {
                   title: "Explore",
@@ -128,7 +140,7 @@ const ReusableLayout = observer(({ children }) => {
               <div className="w-full h-[53px] flex justify-end items-center p-2 border-b border-gray-200 gap-4">
                 <div className="flex items-center gap-1">
                   {MobxStore.user?.streak || 0}{" "}
-                  <Image src={streakImg} width={20} height={20} alt="streak" />
+                  <Image src={streakImg} width={28} height={28} alt="streak" />
                 </div>
                 <div className="flex items-center gap-1">
                   {" "}
@@ -136,7 +148,7 @@ const ReusableLayout = observer(({ children }) => {
                   <Image src={coinImg} width={28} height={28} alt="coin" />
                 </div>
                 <Link href="/quests-builder/new-pathway">
-                  <Button>+ Create New</Button>
+                  <Button>+ Create Pathway</Button>
                 </Link>
                 {user ? <UserNav user={user} /> : <div>Sign In</div>}
               </div>

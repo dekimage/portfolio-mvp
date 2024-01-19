@@ -730,7 +730,7 @@ export const PathwayPlayer = ({ pathway }) => {
   );
 };
 
-const PathwayCard = observer(({ pathway }) => {
+export const PathwayCard = observer(({ pathway }) => {
   const { name, description, emoji, time, duration, steps, backgroundColor } =
     pathway;
   const { setIsPathwayEditView, setPathwayPlaying, isMobileOpen } = MobxStore;

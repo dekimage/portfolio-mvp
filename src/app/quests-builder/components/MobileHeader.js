@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
+  CalendarCheck,
   Gamepad2,
   GaugeCircle,
   LayoutDashboard,
@@ -46,6 +47,13 @@ const MobileHeader = observer(() => {
                 icon: LayoutDashboard,
                 variant: isRoute("quests-builder"),
                 href: "quests-builder",
+                callBack: () => setIsMobileOpen(false),
+              },
+              {
+                title: "Today",
+                icon: CalendarCheck,
+                variant: isRoute("Today"),
+                href: "quests-builder/today",
                 callBack: () => setIsMobileOpen(false),
               },
               {

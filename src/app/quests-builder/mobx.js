@@ -30,6 +30,9 @@ class Store {
   recentPathways = [];
   topPlayedPathways = [];
   userPathways = [];
+  //new
+  triggeredEvents = [];
+
   // App States
   isMobileOpen = false;
   loading = true;
@@ -44,6 +47,25 @@ class Store {
     this.setPathwayPlaying = this.setPathwayPlaying.bind(this);
     this.setIsPathwayEditView = this.setIsPathwayEditView.bind(this);
     this.setIsMobileOpen = this.setIsMobileOpen.bind(this);
+    this.addTrigger = this.addTrigger.bind(this);
+    this.addReward = this.addReward.bind(this);
+    this.updateReward = this.updateReward.bind(this);
+    this.deleteReward = this.deleteReward.bind(this);
+    this.addUserPathway = this.addUserPathway.bind(this);
+    this.publishPathway = this.publishPathway.bind(this);
+    this.updatePathway = this.updatePathway.bind(this);
+    this.updateUserPathway = this.updateUserPathway.bind(this);
+    this.createPathwayCopy = this.createPathwayCopy.bind(this);
+    this.getOrCreateUserPathwayCopy =
+      this.getOrCreateUserPathwayCopy.bind(this);
+    this.addLog = this.addLog.bind(this);
+    this.buyReward = this.buyReward.bind(this);
+    this.fetchUserRewards = this.fetchUserRewards.bind(this);
+    this.fetchUserPathways = this.fetchUserPathways.bind(this);
+    this.fetchLogs = this.fetchLogs.bind(this);
+    this.fetchTopPlayedPathways = this.fetchTopPlayedPathways.bind(this);
+    this.fetchRecentPathways = this.fetchRecentPathways.bind(this);
+    this.fetchTriggers = this.fetchTriggers.bind(this);
   }
 
   initializeAuth() {
@@ -72,6 +94,7 @@ class Store {
           this.fetchLogs();
           this.fetchTopPlayedPathways();
           this.fetchRecentPathways();
+          this.fetchTriggers();
         });
       } else {
         runInAction(() => {
@@ -176,6 +199,46 @@ class Store {
     }
   }
 
+  async addTrigger(trigger) {
+    try {
+      const userTriggerRef = collection(
+        db,
+        `users/${this.user.uid}/myTriggers`
+      );
+      const docRef = await addDoc(userTriggerRef, { label: trigger });
+      runInAction(() => {
+        this.triggeredEvents.push({
+          id: docRef.id,
+          label: trigger,
+        });
+      });
+      return docRef.id;
+    } catch (error) {
+      logger.debug("Error adding trigger: ", error);
+    }
+  }
+
+  async deleteTrigger(triggerId) {
+    try {
+      const triggerRef = doc(
+        db,
+        `users/${this.user.uid}/myTriggers`,
+        triggerId
+      );
+      await deleteDoc(triggerRef);
+
+      runInAction(() => {
+        this.triggeredEvents = this.triggeredEvents.filter(
+          (trigger) => trigger.id !== triggerId
+        );
+      });
+
+      logger.debug("Trigger deleted successfully with ID:", triggerId);
+    } catch (error) {
+      logger.debug("Error deleting trigger:", error);
+    }
+  }
+
   async addReward(reward) {
     try {
       const userRewardsRef = collection(db, `users/${this.user.uid}/rewards`);
@@ -258,6 +321,32 @@ class Store {
       this.isPathwayEditView = !this.isPathwayEditView;
       this.editFromInside = editFromInside;
     });
+  }
+
+  async fetchTriggers() {
+    try {
+      const userTriggerRef = collection(
+        db,
+        `users/${this.user.uid}/myTriggers`
+      );
+      const querySnapshot = await getDocs(userTriggerRef);
+
+      const triggers = [];
+      querySnapshot.forEach((doc) => {
+        triggers.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+
+      runInAction(() => {
+        this.triggeredEvents = triggers;
+      });
+
+      logger.debug("Fetched all triggers successfully.");
+    } catch (error) {
+      logger.debug("Error fetching triggers:", error);
+    }
   }
 
   fetchPathways() {

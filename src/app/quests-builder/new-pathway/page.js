@@ -19,6 +19,9 @@ import { ChevronLeft } from "lucide-react";
 import Circle from "@uiw/react-color-circle";
 import { DEFAULT_COLORS } from "../gamify/page";
 import { Slider } from "@/components/ui/slider";
+import { ComboBoxCreate } from "../components/ComboBoxCreate";
+import { addValueToObjects } from "@/utils/transformers";
+import { observer } from "mobx-react";
 
 const placeholders = {
   checklist: [
@@ -67,6 +70,13 @@ const DEFAULT_PATHWAY = {
   autoPlayMusic: false,
   background: "",
   steps: [],
+  //new
+  timeType: "time",
+  days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  frequency: "everyday",
+  completionLimit: 1,
+  reward: 50,
+  trigger: "",
 };
 
 const DEFAULT_STEP = {
@@ -270,7 +280,57 @@ const CheckboxOptions = ({ stepIndex, options, setOptions }) => {
   );
 };
 
-const PathwayBuilder = ({ pathwayToEdit = false }) => {
+const DayCircle = ({ day, isSelected, onToggle }) => {
+  const selectedClass = isSelected
+    ? "bg-blue-500 text-white"
+    : "bg-gray-200 text-black";
+  return (
+    <button
+      className={`h-10 w-10 rounded-full flex items-center justify-center m-1 ${selectedClass}`}
+      onClick={() => onToggle(day)}
+    >
+      {day.charAt(0)} {/* Display only the first letter of the day */}
+    </button>
+  );
+};
+
+const DaysOptions = ({ options, setOptions }) => {
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+
+  const toggleDay = (day) => {
+    const index = options.indexOf(day);
+    const newOptions = [...options];
+    if (index > -1) {
+      newOptions.splice(index, 1);
+    } else {
+      newOptions.push(day);
+    }
+    setOptions(newOptions);
+  };
+
+  return (
+    <div className="flex justify-start flex-wrap">
+      {daysOfWeek.map((day) => (
+        <DayCircle
+          key={day}
+          day={day}
+          isSelected={options.includes(day)}
+          onToggle={toggleDay}
+        />
+      ))}
+    </div>
+  );
+};
+
+const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
   const router = useRouter();
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [openMusic, setOpenMusic] = useState(false);
@@ -278,7 +338,13 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
   const [musicTrack, setMusicTrack] = useState("");
   const [pathway, setPathway] = useState(pathwayToEdit || DEFAULT_PATHWAY);
   const [hex, setHex] = useState("#F44E3B");
-  const { editFromInside, setPathwayPlaying, setIsPathwayEditView } = MobxStore;
+  const {
+    editFromInside,
+    setPathwayPlaying,
+    setIsPathwayEditView,
+    triggeredEvents,
+    addTrigger,
+  } = MobxStore;
 
   useEffect(() => {
     if (pathwayToEdit) {
@@ -412,7 +478,6 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
           backgroundColor={pathway.backgroundColor}
           handleEmojiChange={(value) => handleInputChange("emoji", value)}
         />
-
         <label className="mt-4 mb-2 text-md font-medium">Background</label>
         <Circle
           style={{ position: "relative", zIndex: "100 !important" }}
@@ -423,12 +488,10 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
             handleInputChange("backgroundColor", color.hex);
           }}
         />
-
         {/* <DialogEmojiPicker
           emoji={pathway.emoji}
           handleEmojiChange={(value) => handleInputChange("emoji", value)}
         /> */}
-
         <DialogSelectBackground
           background={pathway.background}
           handleSelectImage={(value) => handleInputChange("background", value)}
@@ -442,7 +505,6 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
           onChange={(e) => handleInputChange("name", e.target.value)}
           className="mb-4 p-2 border border-gray-300 rounded"
         />
-
         <label className="mt-4 text-md font-medium">
           Description (Optional)
         </label>
@@ -454,6 +516,126 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
           onChange={(e) => handleInputChange("description", e.target.value)}
           className="mb-4 p-2 border border-gray-300 rounded h-24"
         />
+        <ComboBoxWithHelper
+          title="When"
+          value={pathway.timeType}
+          setValue={(value) => {
+            handleInputChange("timeType", value);
+          }}
+          searchLabel={"Trigger"}
+          options={[
+            {
+              value: "time",
+              label: "Time/Day Specific",
+            },
+            {
+              value: "event",
+              label: "Event Triggered",
+            },
+            {
+              value: "any",
+              label: "Not Specified",
+            },
+          ]}
+          helperChildren={"When will you do this pathway?"}
+        />
+
+        {pathway.timeType === "time" && (
+          <div className="flex flex-col pl-4 border-l border-gray-200">
+            {/* <label className="mt-4 text-md font-medium">Time</label>
+            <input
+              type="time"
+              name="time"
+              placeholder="Time"
+              value={pathway.time}
+              onChange={(e) => handleInputChange("time", e.target.value)}
+              className="mb-4 p-2 border border-gray-300 rounded"
+            /> */}
+
+            <ComboBoxWithHelper
+              title="Frequency"
+              value={pathway.frequency}
+              setValue={(value) => {
+                handleInputChange("frequency", value);
+              }}
+              searchLabel={"Frequency"}
+              options={[
+                {
+                  value: "everyday",
+                  label: "Every Day",
+                },
+                {
+                  value: "everyweek",
+                  label: "Every Week",
+                },
+                {
+                  value: "everymonth",
+                  label: "Every Month",
+                },
+                {
+                  value: "everyyear",
+                  label: "Every Year",
+                },
+                {
+                  value: "unlimited",
+                  label: "Unlimited",
+                },
+              ]}
+              helperChildren={"When will you do this pathway?"}
+            />
+
+            {pathway.frequency !== "unlimited" && (
+              <div className="flex flex-col pl-4 border-l border-gray-200">
+                <label className="mt-4 text-md font-medium"></label>
+                <div>
+                  <input
+                    type="number"
+                    name="completionLimit"
+                    placeholder="50"
+                    value={`${pathway.completionLimit}`}
+                    onChange={(e) =>
+                      handleInputChange("completionLimit", e.target.value)
+                    }
+                    className="mb-2 p-2 border border-gray-300 rounded w-[70px] mr-2"
+                  />
+                  per {pathway.frequency?.replace("every", "").toLowerCase()}
+                </div>
+              </div>
+            )}
+
+            <label className="mt-4 text-md font-medium">Show on Days:</label>
+            <DaysOptions
+              options={pathway.days}
+              setOptions={(value) => handleInputChange("days", value)}
+            />
+          </div>
+        )}
+
+        {pathway.timeType === "event" && (
+          <div className="flex flex-col pl-4 border-l border-gray-200">
+            <div className="flex items-center justify-between border-gray-300  rounded mt-6">
+              <div>
+                <label className="mt-4 text-md font-medium">Trigger</label>
+                <QuestionHelpBox>help</QuestionHelpBox>
+              </div>
+
+              <ComboBoxCreate
+                title="Create New Trigger"
+                description="This trigger will be saved for future pathways."
+                value={pathway.trigger}
+                searchLabel={"Trigger"}
+                options={addValueToObjects(triggeredEvents)}
+                setValue={(value) => {
+                  handleInputChange("trigger", value);
+                }}
+                onSave={(value) => {
+                  addTrigger(value);
+                  handleInputChange("trigger", value.toLowerCase());
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         <SwitchWithHelper
           title="Background Music"
@@ -461,7 +643,6 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
           callback={() => setOpenMusic(!openMusic)}
           helperChildren={"Auto play is..."}
         />
-
         {openMusic && (
           <div className="flex flex-col pl-4 border-l border-gray-200">
             <SwitchWithHelper
@@ -486,14 +667,12 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
             </div>
           </div>
         )}
-
         <SwitchWithHelper
           title="Gamify Rewards"
           value={isGamify}
           callback={() => setIsGamify(!isGamify)}
           helperChildren={"Gamify is..."}
         />
-
         {isGamify && (
           <div className="flex flex-col pl-4 border-l border-gray-200">
             <label className="mt-4 text-md font-medium">
@@ -512,11 +691,9 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
             </div>
           </div>
         )}
-
         <div className="text-2xl mt-8 flex justify-center">
           Steps ({pathway.steps?.length})
         </div>
-
         {pathway.steps?.map((step, index) => {
           return (
             <div
@@ -694,7 +871,6 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
             </div>
           );
         })}
-
         <Button
           variant="outline"
           className="mt-4 border-dashed"
@@ -713,6 +889,6 @@ const PathwayBuilder = ({ pathwayToEdit = false }) => {
       </div>
     </div>
   );
-};
+});
 
 export default PathwayBuilder;

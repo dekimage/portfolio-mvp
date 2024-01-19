@@ -31,6 +31,9 @@ export const DEFAULT_COLORS = [
   "#f5ebe0",
   "#ffb5a7",
   "#adc178",
+  "#ca6702",
+  "#f5cac3",
+  "#e6ccb2",
 ];
 
 const STATIC_MAX_PURCHASE_LIMITS = [

@@ -116,7 +116,7 @@ const MyHabitsApp = () => {
 
       <div className="flex flex-wrap">
         {myIdeas.map((idea, i) => (
-          <Idea idea={idea} />
+          <Idea key={i} idea={idea} />
         ))}
       </div>
     </div>
