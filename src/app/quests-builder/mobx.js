@@ -17,9 +17,11 @@ import {
   limit,
 } from "firebase/firestore";
 import Logger from "@/utils/logger";
+import { shouldResetProgress } from "@/utils/date";
 
 const logger = new Logger({ debugEnabled: false }); // switch to true to see console logs from firebase
 const MAX_LOGS_PER_DAY = 5; // change this to user controlled per pathway - pathway.maxLogsPerDay
+const ONE_DAY = 24 * 60 * 60 * 1000;
 
 class Store {
   // App Data
@@ -32,6 +34,7 @@ class Store {
   userPathways = [];
   //new
   triggeredEvents = [];
+  lists = [];
 
   // App States
   isMobileOpen = false;
@@ -66,6 +69,11 @@ class Store {
     this.fetchTopPlayedPathways = this.fetchTopPlayedPathways.bind(this);
     this.fetchRecentPathways = this.fetchRecentPathways.bind(this);
     this.fetchTriggers = this.fetchTriggers.bind(this);
+    this.deleteTrigger = this.deleteTrigger.bind(this);
+    this.addList = this.addList.bind(this);
+    this.fetchLists = this.fetchLists.bind(this);
+    this.findPathwaysByListId = this.findPathwaysByListId.bind(this);
+    this.addPathwayToList = this.addPathwayToList.bind(this);
   }
 
   initializeAuth() {
@@ -80,6 +88,7 @@ class Store {
             const newUser = {
               uid: user.uid,
               level: 1,
+              streak: 0,
               xp: 0,
               createdAt: new Date(),
             };
@@ -95,6 +104,7 @@ class Store {
           this.fetchTopPlayedPathways();
           this.fetchRecentPathways();
           this.fetchTriggers();
+          this.fetchLists();
         });
       } else {
         runInAction(() => {
@@ -105,6 +115,35 @@ class Store {
         this.loading = false;
       });
     });
+  }
+
+  async fetchLists() {
+    try {
+      const userListsRef = collection(db, `users/${this.user.uid}/myLists`);
+      const querySnapshot = await getDocs(userListsRef);
+
+      runInAction(() => {
+        this.lists = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      });
+
+      logger.debug("Lists fetched successfully");
+    } catch (error) {
+      logger.debug("Error fetching lists:", error);
+    }
+  }
+
+  findPathwaysByListId(listId) {
+    const foundList = this.lists.find((list) => list.id === listId);
+    if (foundList) {
+      const pathwayIds = foundList.pathways || [];
+      return this.userPathways.filter((pathway) =>
+        pathwayIds.includes(pathway.id)
+      );
+    }
+    return []; // Return an empty array if the list is not found or no pathways are matched
   }
 
   async fetchLogs() {
@@ -369,13 +408,33 @@ class Store {
       );
       const querySnapshot = await getDocs(userPathwayRef);
 
+      const updates = [];
+
       runInAction(() => {
-        this.userPathways = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          creatorId: this.user.uid,
-          ...doc.data(),
-        }));
+        this.userPathways = querySnapshot.docs.map((doc) => {
+          const pathway = {
+            id: doc.id,
+            creatorId: this.user.uid,
+            ...doc.data(),
+          };
+
+          if (
+            pathway.timeType == "time" &&
+            shouldResetProgress(pathway.frequency, pathway.lastCompleted)
+          ) {
+            console.log("hiii reset");
+            // Reset progress and prepare for Firebase update
+            updates.push(updateDoc(doc.ref, { progress: 0 }));
+
+            return { ...pathway, progress: 0 };
+          }
+
+          return pathway;
+        });
       });
+
+      // Execute all updates in Firebase
+      await Promise.all(updates);
     } catch (error) {
       logger.debug("Error fetching user pathways:", error);
     }
@@ -564,6 +623,18 @@ class Store {
     }
   }
 
+  updatePathwayData(pathwayId, newData) {
+    const pathwayIndex = this.userPathways.findIndex((p) => p.id === pathwayId);
+    if (pathwayIndex !== -1) {
+      this.userPathways[pathwayIndex] = {
+        ...this.userPathways[pathwayIndex],
+        ...newData,
+      };
+    } else {
+      console.error("Pathway not found for updating");
+    }
+  }
+
   async addLog(pathway, logData) {
     const canSave = await this.canSaveLog(pathway.id);
     if (!canSave) {
@@ -610,6 +681,41 @@ class Store {
         this.logs.push(newLog);
       });
 
+      //if time tracking - Update Progress +1
+      if (
+        pathway.timeType == "time" &&
+        pathway.progress < pathway.completionLimit
+      ) {
+        const updatedPathwayRef = doc(
+          db,
+          `users/${this.user.uid}/myPathways`,
+          pathway.id
+        );
+        const updatedPathwayDoc = await getDoc(updatedPathwayRef);
+
+        if (updatedPathwayDoc.exists()) {
+          const currentProgress = updatedPathwayDoc.data().progress || 0;
+          const newProgress = currentProgress + 1;
+          const lastCompleted = new Date(); // Current date as lastCompleted
+
+          await updateDoc(updatedPathwayRef, {
+            progress: newProgress,
+            lastCompleted: lastCompleted,
+          });
+
+          runInAction(() => {
+            // Update the pathway data in the MobX store
+            // Assuming you have a method or logic to update the pathway
+            this.updatePathwayData(pathway.id, {
+              progress: newProgress,
+              lastCompleted: lastCompleted,
+            });
+          });
+        } else {
+          logger.error("Pathway not found for updating progress");
+        }
+      }
+
       logger.debug("Session log saved successfully");
     } catch (error) {
       logger.error("Error saving session log:", error);
@@ -646,16 +752,16 @@ class Store {
       const endOfDay = new Date();
       endOfDay.setHours(23, 59, 59, 999);
 
-      const logQuery = query(
-        collection(db, `users/${this.user.uid}/activityLogs`),
-        where("pathwayId", "==", pathwayId),
-        where("timestamp", ">=", startOfDay),
-        where("timestamp", "<=", endOfDay)
+      // Using logs from MobX state instead of querying Firebase
+      const todaysLogs = this.logs.filter(
+        (log) =>
+          log.pathwayId === pathwayId &&
+          new Date(log.timestamp) >= startOfDay &&
+          new Date(log.timestamp) <= endOfDay
       );
 
-      const querySnapshot = await getDocs(logQuery);
-      logger.debug({ querySnapshot });
-      return querySnapshot.size < MAX_LOGS_PER_DAY;
+      logger.debug({ todaysLogs });
+      return todaysLogs.length < MAX_LOGS_PER_DAY;
     } catch (error) {
       logger.debug("Error checking log availability:", error);
       return false;
@@ -690,6 +796,61 @@ class Store {
     });
 
     logger.debug("Reward purchased successfully");
+  }
+
+  async addList(listName) {
+    try {
+      const userListsRef = collection(db, `users/${this.user.uid}/myLists`);
+
+      const docRef = await addDoc(userListsRef, { name: listName });
+
+      runInAction(() => {
+        this.lists.push({
+          id: docRef.id,
+
+          name: listName,
+        });
+      });
+    } catch (error) {
+      console.error("Error adding list:", error);
+      // Handle any errors appropriately
+    }
+  }
+
+  async addPathwayToList(listId, pathwayId) {
+    try {
+      // Reference to the specific user's list document in Firebase
+      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
+
+      // Get the current list document
+      const listDoc = await getDoc(listRef);
+      if (!listDoc.exists()) {
+        throw new Error("List not found");
+      }
+
+      const listData = listDoc.data();
+      const updatedPathways = listData.pathways
+        ? [...listData.pathways, pathwayId]
+        : [pathwayId];
+
+      // Update the list in Firebase
+      await updateDoc(listRef, {
+        pathways: updatedPathways,
+      });
+
+      // Update MobX store
+      runInAction(() => {
+        const list = this.lists.find((l) => l.id === listId);
+        if (list) {
+          list.pathways = updatedPathways;
+        } else {
+          // Handle the case where the list is not found in the store
+        }
+      });
+    } catch (error) {
+      console.error("Error adding pathway to list:", error);
+      // Handle any errors appropriately
+    }
   }
 
   signInAnonymously = async () => {

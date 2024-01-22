@@ -777,17 +777,21 @@ export const PathwayCard = observer(({ pathway }) => {
           </div>
           <div className="my-2">
             <Badge variant="screen" className="mr-2">
-              {duration}
+              {Math.ceil(
+                steps?.reduce((acc, step) => acc + step.timer, 0) / 60
+              )}{" "}
+              min
             </Badge>
             <Badge variant="screen" className="mr-2">
               {steps?.length} Steps
             </Badge>
-
-            <Badge variant="screen" className="mr-2">
-              {time}
-            </Badge>
           </div>
         </div>
+        {pathway.timeType == "time" && (
+          <div>
+            {pathway.progress || 0} / {pathway.completionLimit}
+          </div>
+        )}
 
         <Button
           className="w-full mt-2"

@@ -9,6 +9,7 @@ import {
   Gamepad2,
   GaugeCircle,
   LayoutDashboard,
+  ListMinus,
   Search,
 } from "lucide-react";
 import MobxStore from "../mobx";
@@ -23,19 +24,79 @@ import logoImg from "../assets/pathway-logo.png";
 import streakImg from "../assets/streak.png";
 import coinImg from "../assets/coin.png";
 import MobileHeader from "./MobileHeader";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 const defaultLayout = [20, 80];
 
+const CreateListDialog = () => {
+  const [listName, setListName] = useState("");
+  const { addList } = MobxStore;
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full">
+          + Create List
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create New List</DialogTitle>
+          <DialogDescription>
+            Store different pathways across custom lists.
+          </DialogDescription>
+        </DialogHeader>
+        <div>
+          <div className="space-y-4 py-2 pb-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">List Name</Label>
+              <Input
+                id="name"
+                placeholder="Morning Routine"
+                onChange={(e) => setListName(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowDialog(false)}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            onClick={() => {
+              // setShowDialog(false);
+              addList(listName);
+            }}
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const ReusableLayout = observer(({ children }) => {
+  const { user, lists, signInAnonymously } = MobxStore;
   const handleSignIn = async () => {
-    await MobxStore.signInAnonymously();
+    await signInAnonymously();
   };
   const pathname = usePathname();
   const isRoute = (route) => {
     return pathname.endsWith(route.toLowerCase()) ? "default" : "ghost";
   };
-
-  const user = MobxStore.user;
 
   return (
     <div>
@@ -108,12 +169,19 @@ const ReusableLayout = observer(({ children }) => {
             />
             <Separator />
             <div className="flex justify-center items-center w-[185px] m-2">
-              <Link href="/quests-builder/new-pathway" className="w-full">
-                <Button variant="outline" className="w-full">
-                  + Create List
-                </Button>
-              </Link>
+              <CreateListDialog />
             </div>
+
+            {lists.length > 0 && (
+              <VerticalNavbar
+                links={lists.map((list) => ({
+                  title: list.name,
+                  icon: ListMinus,
+                  variant: isRoute(list.id),
+                  href: `quests-builder/list/${list.id}`,
+                }))}
+              />
+            )}
           </ResizablePanel>
           {/* <ResizableHandle /> */}
           <ResizablePanel

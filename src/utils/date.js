@@ -127,3 +127,45 @@ export function formatTimeRange(startMs, endMs) {
 
   return `${startTime} - ${endTime}`;
 }
+
+export function shouldShowToday(days) {
+  const today = new Date().toLocaleString("en-US", { weekday: "long" });
+  return days?.includes(today);
+}
+
+export function getPeriodEndDate(frequency, lastCompletedDate) {
+  const endDate = new Date(lastCompletedDate);
+
+  switch (frequency) {
+    case "everyday":
+      endDate.setDate(endDate.getDate() + 1);
+      break;
+    case "everyweek":
+      endDate.setDate(endDate.getDate() + 7 - endDate.getDay());
+      break;
+    case "everymonth":
+      endDate.setMonth(endDate.getMonth() + 1);
+      endDate.setDate(0); // Last day of the current month
+      break;
+    case "everyyear":
+      endDate.setFullYear(endDate.getFullYear() + 1);
+      endDate.setMonth(0); // Set to January
+      endDate.setDate(0); // Last day of December
+      break;
+    default:
+      throw new Error("Unknown frequency");
+  }
+
+  return endDate;
+}
+
+//Pathways
+export function shouldResetProgress(frequency, lastCompletedDate) {
+  const currentDate = new Date();
+  const periodEndDate = getPeriodEndDate(
+    frequency,
+    new Date(lastCompletedDate)
+  );
+
+  return currentDate >= periodEndDate;
+}

@@ -7,6 +7,7 @@ import {
   PathwayPlayer,
   TitleDescription,
 } from "../page";
+import { shouldShowToday } from "@/utils/date";
 
 const TodayPage = observer(() => {
   const { userPathways, pathwayPlaying, loading } = MobxStore;
@@ -22,9 +23,11 @@ const TodayPage = observer(() => {
         description="Start your day with fresh pathways"
       />
       <div className="flex flex-col gap-4">
-        {userPathways?.map((pathway, i) => (
-          <PathwayCard key={i} pathway={pathway} />
-        ))}
+        {userPathways
+          ?.filter((p) => shouldShowToday(p.days))
+          .map((pathway, i) => (
+            <PathwayCard key={i} pathway={pathway} />
+          ))}
       </div>
     </div>
   );
