@@ -1,3 +1,4 @@
+// import { ThemeProvider } from "next-themes";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import { Inter } from "next/font/google";

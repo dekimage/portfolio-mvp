@@ -27,6 +27,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { formatTimeFromSteps } from "@/utils/transformers";
 
 // to reusable UI
 const Checkbox = ({ label, checked, onChange }) => {
@@ -256,6 +264,25 @@ export const TitleDescription = ({ title, description, button }) => {
   );
 };
 
+{
+  /* <Carousel
+opts={{
+  align: "start",
+}}
+className="w-full"
+>
+<CarouselContent>
+  {pathways.map((pathway, i) => (
+    <CarouselItem key={i} className="lg:basis-1/4 w-[270px]">
+      <PathwayCard key={i} pathway={pathway} />
+    </CarouselItem>
+  ))}
+</CarouselContent>
+<CarouselPrevious />
+<CarouselNext />
+</Carousel> */
+}
+
 export const HorizontalPathwaysList = ({ pathways, title, description }) => {
   return (
     <div className="mb-8">
@@ -420,7 +447,7 @@ const Timer = ({ timer, restartTimer, isPlaying, setIsPlaying }) => {
   );
 };
 
-export const PathwayPlayer = ({ pathway }) => {
+export const PathwayPlayer = observer(({ pathway }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const step = pathway.steps[currentStep];
   const [timer, setTimer] = useState(step.timer);
@@ -560,7 +587,7 @@ export const PathwayPlayer = ({ pathway }) => {
 
   const canProceed = true;
   // timer === 0 && userInput.length >= step.minText;
-
+  console.log(isPathwayEditView);
   if (isPathwayEditView) {
     return <PathwayBuilder pathwayToEdit={pathway} />;
   }
@@ -728,16 +755,23 @@ export const PathwayPlayer = ({ pathway }) => {
       )}
     </div>
   );
-};
+});
 
 export const PathwayCard = observer(({ pathway }) => {
   const { name, description, emoji, time, duration, steps, backgroundColor } =
     pathway;
-  const { setIsPathwayEditView, setPathwayPlaying, isMobileOpen } = MobxStore;
+  const {
+    setIsPathwayEditView,
+    setPathwayPlaying,
+    isMobileOpen,
+    deletePathway,
+  } = MobxStore;
+
+  const totalDurationCalced = formatTimeFromSteps(steps);
 
   return (
     !isMobileOpen && (
-      <Card className="p-4 w-64 flex flex-col justify-between relative">
+      <Card className="p-4 w-64 h-[320px] flex flex-col justify-between relative">
         <div className="flex flex-grow flex-col">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -761,7 +795,9 @@ export const PathwayCard = observer(({ pathway }) => {
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem>View Stats</DropdownMenuItem>
-              <DropdownMenuItem>Delete</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => deletePathway(pathway.id)}>
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -777,10 +813,7 @@ export const PathwayCard = observer(({ pathway }) => {
           </div>
           <div className="my-2">
             <Badge variant="screen" className="mr-2">
-              {Math.ceil(
-                steps?.reduce((acc, step) => acc + step.timer, 0) / 60
-              )}{" "}
-              min
+              {totalDurationCalced}
             </Badge>
             <Badge variant="screen" className="mr-2">
               {steps?.length} Steps

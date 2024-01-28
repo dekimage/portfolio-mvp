@@ -89,10 +89,8 @@ const CreateListDialog = () => {
 };
 
 const ReusableLayout = observer(({ children }) => {
-  const { user, lists, signInAnonymously } = MobxStore;
-  const handleSignIn = async () => {
-    await signInAnonymously();
-  };
+  const { user, lists, logout } = MobxStore;
+
   const pathname = usePathname();
   const isRoute = (route) => {
     return pathname.endsWith(route.toLowerCase()) ? "default" : "ghost";
@@ -206,19 +204,37 @@ const ReusableLayout = observer(({ children }) => {
             )} */}
 
               <div className="w-full h-[53px] flex justify-end items-center p-2 border-b border-gray-200 gap-4">
-                <div className="flex items-center gap-1">
-                  {MobxStore.user?.streak || 0}{" "}
-                  <Image src={streakImg} width={28} height={28} alt="streak" />
-                </div>
-                <div className="flex items-center gap-1">
-                  {" "}
-                  {MobxStore.user?.gold}{" "}
-                  <Image src={coinImg} width={28} height={28} alt="coin" />
-                </div>
-                <Link href="/quests-builder/new-pathway">
-                  <Button>+ Create Pathway</Button>
-                </Link>
-                {user ? <UserNav user={user} /> : <div>Sign In</div>}
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-1">
+                      {MobxStore.user?.streak || 0}{" "}
+                      <Image
+                        src={streakImg}
+                        width={28}
+                        height={28}
+                        alt="streak"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {" "}
+                      {MobxStore.user?.gold}{" "}
+                      <Image src={coinImg} width={28} height={28} alt="coin" />
+                    </div>
+                    <Link href="/quests-builder/new-pathway">
+                      <Button>+ Create Pathway</Button>
+                    </Link>
+                    <UserNav user={user} logout={logout} />
+                  </>
+                ) : (
+                  <div className="flex gap-2">
+                    <Link href="/quests-builder/login">
+                      <Button variant="outline">Login</Button>
+                    </Link>
+                    <Link href="/quests-builder/signup">
+                      <Button>Create Free Account</Button>
+                    </Link>
+                  </div>
+                )}
               </div>
               <div className="">{children}</div>
             </div>

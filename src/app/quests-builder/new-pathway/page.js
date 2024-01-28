@@ -369,23 +369,11 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
     });
   };
 
-  // const handleUpdateStepChange = (index, name, value) => {
-  //   const newSteps = [...pathway.steps];
-  //   newSteps[index][name] = value;
-  //   setPathway({ ...pathway, steps: newSteps });
-  // };
-
   const handleUpdateStepChange = (stepIndex, name, value) => {
     const newSteps = [...pathway.steps];
     newSteps[stepIndex] = { ...newSteps[stepIndex], [name]: value };
     setPathway({ ...pathway, steps: newSteps });
   };
-
-  // const handleStepChange = (index, e) => {
-  //   const newSteps = [...pathway.steps];
-  //   newSteps[index][e.target.name] = e.target.value;
-  //   setPathway({ ...pathway, steps: newSteps });
-  // };
 
   const handleStepChange = (stepIndex, e) => {
     const newSteps = [...pathway.steps];
@@ -401,12 +389,16 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
 
     if (pathwayToEdit) {
       // If we Update
-      if (pathwayToEdit.isCopy) {
-        // Editing user's own pathway copy
-        await MobxStore.updateUserPathway(pathwayToEdit.id, pathway);
+
+      await MobxStore.updateUserPathway(pathwayToEdit.id, pathway);
+
+      if (editFromInside) {
         setIsPathwayEditView(false);
-        return;
+      } else {
+        setPathwayPlaying(false);
+        setIsPathwayEditView(false);
       }
+      return;
 
       if (
         pathwayToEdit.creatorId === MobxStore.user.uid &&
