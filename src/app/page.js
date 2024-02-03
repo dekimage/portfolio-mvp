@@ -2,6 +2,13 @@ import ProjectCard from "@/components/projects/ProjectCard";
 
 const projects = [
   {
+    title: "Mini Actionise",
+    description: "Small free version of the original Actionise.com App",
+    image: "actionise",
+    tags: ["App", "Personal Development"],
+    url: "actionise",
+  },
+  {
     title: "My Habits",
     description:
       "A place for all of my habits. I share how I use them and how you can use them too.",
