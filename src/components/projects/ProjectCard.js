@@ -33,9 +33,11 @@ const ProjectCard = ({ project }) => {
 
   return (
     <Card className="m-4 p-y-4 w-80">
-      <div className="flex justify-center items-center pb-0">
-        <Image src={imagesLookup[image]} alt={title} width={300} />
-      </div>
+      <Link href={`/${url}`} className="w-full">
+        <div className="flex justify-center items-center pb-0">
+          <Image src={imagesLookup[image]} alt={title} width={300} />
+        </div>
+      </Link>
 
       <CardHeader>
         <CardTitle>{title}</CardTitle>

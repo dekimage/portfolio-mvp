@@ -17,11 +17,47 @@ const TodayPage = observer(() => {
   }
 
   return (
-    <div className="mx-4">
+    <div className="mx-4 flex flex-col gap-4">
       <TitleDescription
-        title="Today's Pathways"
+        title="Daily"
         description="Start your day with fresh pathways"
       />
+      <div className="flex flex-col gap-4">
+        {userPathways
+          ?.filter((p) => shouldShowToday(p.days))
+          .map((pathway, i) => (
+            <PathwayCard key={i} pathway={pathway} />
+          ))}
+      </div>
+
+      <TitleDescription title="Weekly" description="" />
+      <div className="flex flex-col gap-4">
+        {userPathways
+          ?.filter((p) => shouldShowToday(p.days))
+          .map((pathway, i) => (
+            <PathwayCard key={i} pathway={pathway} />
+          ))}
+      </div>
+
+      <TitleDescription title="Monthly" description="" />
+      <div className="flex flex-col gap-4">
+        {userPathways
+          ?.filter((p) => shouldShowToday(p.days))
+          .map((pathway, i) => (
+            <PathwayCard key={i} pathway={pathway} />
+          ))}
+      </div>
+
+      <TitleDescription title="Yearly" description="" />
+      <div className="flex flex-col gap-4">
+        {userPathways
+          ?.filter((p) => shouldShowToday(p.days))
+          .map((pathway, i) => (
+            <PathwayCard key={i} pathway={pathway} />
+          ))}
+      </div>
+
+      <TitleDescription title="Anytime" description="" />
       <div className="flex flex-col gap-4">
         {userPathways
           ?.filter((p) => shouldShowToday(p.days))

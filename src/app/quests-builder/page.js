@@ -35,6 +35,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { formatTimeFromSteps } from "@/utils/transformers";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 // to reusable UI
 const Checkbox = ({ label, checked, onChange }) => {
@@ -757,7 +759,7 @@ export const PathwayPlayer = observer(({ pathway }) => {
   );
 });
 
-export const PathwayCard = observer(({ pathway }) => {
+export const PathwayCard = observer(({ pathway, listId }) => {
   const { name, description, emoji, time, duration, steps, backgroundColor } =
     pathway;
   const {
@@ -765,7 +767,12 @@ export const PathwayCard = observer(({ pathway }) => {
     setPathwayPlaying,
     isMobileOpen,
     deletePathway,
+    removeFromList,
   } = MobxStore;
+
+  const pathname = usePathname();
+
+  const isInList = pathname.includes("list") && listId;
 
   const totalDurationCalced = formatTimeFromSteps(steps);
 
@@ -794,10 +801,23 @@ export const PathwayCard = observer(({ pathway }) => {
               >
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem>View Stats</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => deletePathway(pathway.id)}>
-                Delete
-              </DropdownMenuItem>
+              <Link
+                href={`/quests-builder/analytics/?pathwayId=${pathway.id}`}
+                passHref
+              >
+                <DropdownMenuItem>View Stats</DropdownMenuItem>
+              </Link>
+              {isInList ? (
+                <DropdownMenuItem
+                  onClick={() => removeFromList(listId, pathway.id)}
+                >
+                  Remove From List
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => deletePathway(pathway.id)}>
+                  Delete
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

@@ -5,7 +5,7 @@ import MobxStore from "../mobx";
 import { HorizontalPathwaysList, PathwayPlayer } from "../page";
 
 const ExplorePage = observer(() => {
-  const { userPathways, pathwayPlaying } = MobxStore;
+  const { pathwayPlaying } = MobxStore;
 
   if (pathwayPlaying) {
     return <PathwayPlayer pathway={pathwayPlaying} />;
@@ -16,12 +16,6 @@ const ExplorePage = observer(() => {
         pathways={MobxStore.pathways}
         title="Community Pathways"
         description="Explore what others have built"
-      />
-
-      <HorizontalPathwaysList
-        pathways={userPathways}
-        title="My Pathways"
-        description="From Subcollection Users"
       />
     </div>
   );

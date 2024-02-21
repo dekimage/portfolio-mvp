@@ -101,6 +101,10 @@ class Store {
     this.removePathwayFromLists = this.removePathwayFromLists.bind(this);
     this.updatePathwayInState = this.updatePathwayInState.bind(this);
     this.updatePathwayData = this.updatePathwayData.bind(this);
+    this.deleteLog = this.deleteLog.bind(this);
+    this.removeFromList = this.removeFromList.bind(this);
+    this.deleteList = this.deleteList.bind(this);
+    this.editListName = this.editListName.bind(this);
   }
 
   initializeAuth() {
@@ -204,6 +208,42 @@ class Store {
     }
   }
 
+  async removeFromList(listId, pathwayId) {
+    try {
+      // Reference to the specific user's list document in Firebase
+      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
+
+      // Get the current list document
+      const listDoc = await getDoc(listRef);
+      if (!listDoc.exists()) {
+        throw new Error("List not found");
+      }
+
+      const listData = listDoc.data();
+      const updatedPathways = listData.pathways.filter(
+        (id) => id !== pathwayId
+      );
+
+      // Update the list in Firebase
+      await updateDoc(listRef, {
+        pathways: updatedPathways,
+      });
+
+      // Update MobX store
+      runInAction(() => {
+        const list = this.lists.find((l) => l.id === listId);
+        if (list) {
+          list.pathways = updatedPathways;
+        } else {
+          // Handle the case where the list is not found in the store
+        }
+      });
+    } catch (error) {
+      console.error("Error removing pathway from list:", error);
+      // Handle any errors appropriately
+    }
+  }
+
   async addList(listName) {
     try {
       const userListsRef = collection(db, `users/${this.user.uid}/myLists`);
@@ -223,22 +263,61 @@ class Store {
     }
   }
 
+  async deleteList(listId) {
+    try {
+      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
+      await deleteDoc(listRef);
+
+      runInAction(() => {
+        this.lists = this.lists.filter((list) => list.id !== listId);
+      });
+    } catch (error) {
+      console.error("Error deleting list:", error);
+      // Handle any errors appropriately
+    }
+  }
+
+  async editListName(listId, newName) {
+    try {
+      const listRef = doc(db, `users/${this.user.uid}/myLists`, listId);
+      await updateDoc(listRef, { name: newName });
+
+      runInAction(() => {
+        const list = this.lists.find((l) => l.id === listId);
+        if (list) {
+          list.name = newName;
+        } else {
+          // Handle the case where the list is not found in the store
+        }
+      });
+    } catch (error) {
+      console.error("Error editing list name:", error);
+      // Handle any errors appropriately
+    }
+  }
+
   //
   //
   //
   //
   //
   // ANALYTICS - LOGS
+
   async fetchLogs() {
     try {
       const logRef = collection(db, `users/${this.user.uid}/activityLogs`);
       const querySnapshot = await getDocs(logRef);
 
       runInAction(() => {
-        this.logs = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        this.logs = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          // const consistentTimestamp = toUnixTimestamp(data.timestamp);
+          return {
+            id: doc.id,
+            ...data,
+            // timestamp: consistentTimestamp,
+          };
+        });
       });
 
       logger.debug("Logs fetched successfully");
@@ -354,6 +433,21 @@ class Store {
       streak: this.user.streak,
       lastPlayed: today,
     });
+  }
+
+  async deleteLog(logId) {
+    try {
+      const logRef = doc(db, `users/${this.user.uid}/activityLogs`, logId);
+      await deleteDoc(logRef);
+
+      runInAction(() => {
+        this.logs = this.logs.filter((log) => log.id !== logId);
+      });
+
+      logger.debug("Log deleted successfully with ID:", logId);
+    } catch (error) {
+      logger.error("Error deleting log:", error);
+    }
   }
 
   //

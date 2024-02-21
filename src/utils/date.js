@@ -75,36 +75,35 @@ export function formatSeconds(seconds) {
   return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 
-export function formatSecondsToHumanReadable(seconds) {
+export function formatSecondsToHumanReadable(seconds, showSeconds = true) {
   if (seconds < 60) {
-    return `${seconds} second${seconds !== 1 ? "s" : ""}`;
+    return `${Math.round(seconds)} sec`;
   } else if (seconds < 3600) {
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes} minute${
-      minutes !== 1 ? "s" : ""
-    } ${remainingSeconds} second${remainingSeconds !== 1 ? "s" : ""}`;
+    const remainingSeconds = Math.round(seconds % 60);
+    return showSeconds
+      ? `${minutes} min ${remainingSeconds} sec`
+      : `${minutes} min`;
   } else {
     const hours = Math.floor(seconds / 3600);
-    const remainingMinutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    const formattedHours = `${hours} hour${hours !== 1 ? "s" : ""}`;
-    const formattedMinutes = `${remainingMinutes} minute${
-      remainingMinutes !== 1 ? "s" : ""
-    }`;
-    const formattedSeconds = `${remainingSeconds} second${
-      remainingSeconds !== 1 ? "s" : ""
-    }`;
+    const remainingMinutes = Math.round((seconds % 3600) / 60);
+    // If rounding the minutes exceeds 60, adjust hours and minutes accordingly
+    const adjustedHours = remainingMinutes >= 60 ? hours + 1 : hours;
+    const adjustedMinutes = remainingMinutes >= 60 ? 0 : remainingMinutes;
 
-    const timeParts = [];
-    if (hours > 0) {
-      timeParts.push(formattedHours);
-    }
-    if (remainingMinutes > 0) {
+    const formattedHours = `${adjustedHours} hr`;
+    const formattedMinutes = `${adjustedMinutes} min`;
+
+    const timeParts = [formattedHours];
+    if (adjustedMinutes > 0 || (!showSeconds && seconds >= 3600)) {
       timeParts.push(formattedMinutes);
     }
-    if (remainingSeconds > 0) {
-      timeParts.push(formattedSeconds);
+    if (showSeconds && seconds < 3600) {
+      const remainingSeconds = Math.round(seconds % 60);
+      if (remainingSeconds > 0) {
+        const formattedSeconds = `${remainingSeconds} sec`;
+        timeParts.push(formattedSeconds);
+      }
     }
 
     return timeParts.join(" ");

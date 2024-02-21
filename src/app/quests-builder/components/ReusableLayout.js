@@ -10,6 +10,7 @@ import {
   GaugeCircle,
   LayoutDashboard,
   ListMinus,
+  Plus,
   Search,
 } from "lucide-react";
 import MobxStore from "../mobx";
@@ -47,7 +48,7 @@ const CreateListDialog = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
-          + Create List
+          <Plus size={16} className="mr-2" /> Create List
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -93,7 +94,15 @@ const ReusableLayout = observer(({ children }) => {
 
   const pathname = usePathname();
   const isRoute = (route) => {
-    return pathname.endsWith(route.toLowerCase()) ? "default" : "ghost";
+    if (route === "quests-builder") {
+      return pathname.toLowerCase() === `/${route.toLowerCase()}`
+        ? "default"
+        : "ghost";
+    }
+
+    return pathname.toLowerCase().includes(route.toLowerCase())
+      ? "default"
+      : "ghost";
   };
 
   return (
@@ -221,7 +230,9 @@ const ReusableLayout = observer(({ children }) => {
                       <Image src={coinImg} width={28} height={28} alt="coin" />
                     </div>
                     <Link href="/quests-builder/new-pathway">
-                      <Button>+ Create Pathway</Button>
+                      <Button>
+                        <Plus size={16} className="mr-2" /> Create Pathway
+                      </Button>
                     </Link>
                     <UserNav user={user} logout={logout} />
                   </>

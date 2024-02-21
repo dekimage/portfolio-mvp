@@ -264,7 +264,7 @@ const GamifyPage = observer(() => {
   const [isCreate, setIsCreate] = useState(false);
   const [rewardState, setRewardState] = useState(null);
   return (
-    <div className="h-[90vh]  max-w-[600px] m-4 sm:mx-8">
+    <div className="h-[90vh] max-w-[600px] m-4 sm:mx-8">
       {isCreate ? (
         <RewardBuilder
           setIsCreate={setIsCreate}
