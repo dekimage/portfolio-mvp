@@ -62,6 +62,13 @@ const projects = [
     url: "ugly-tasks",
     image: "uglyTasks",
   },
+  {
+    title: "Story RPG Tool",
+    description: "Create your own advanture game.",
+    tags: ["App", "Personal Development"],
+    url: "story-rpg",
+    image: "storyRpg",
+  },
 ];
 
 export default function Home() {
