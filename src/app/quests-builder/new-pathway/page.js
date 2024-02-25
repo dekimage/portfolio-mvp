@@ -197,7 +197,7 @@ const ComboBoxWithHelper = ({
   options,
 }) => {
   return (
-    <div className="flex items-center justify-between border-gray-300  rounded mt-6">
+    <div className="flex items-center justify-between   rounded mt-6">
       <div>
         <label className="mt-4 text-md font-medium">{title}</label>
         <QuestionHelpBox>{helperChildren}</QuestionHelpBox>
@@ -215,7 +215,7 @@ const ComboBoxWithHelper = ({
 
 const SwitchWithHelper = ({ helperChildren, title, value, callback }) => {
   return (
-    <div className="flex items-center justify-between border-gray-300  rounded mt-6">
+    <div className="flex items-center justify-between   rounded mt-6">
       <div>
         <label className="mt-4 text-md font-medium">{title}</label>
         <QuestionHelpBox>{helperChildren}</QuestionHelpBox>
@@ -266,7 +266,7 @@ const CheckboxOptions = ({ stepIndex, options, setOptions }) => {
             value={option}
             placeholder={generatePlaceholder("checklist", index)}
             onChange={(e) => handleOptionChange(index, e.target.value)}
-            className="p-2 border border-gray-300 rounded w-full"
+            className="p-2 border  rounded w-full"
           />
           <button onClick={() => handleDeleteOption(index)} className="ml-2">
             <LuTrash />
@@ -445,7 +445,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
 
   return (
     <div className="m-4 sm:m-8 flex">
-      <div className="flex flex-col bg-white rounded-lg max-w-[480px] w-full">
+      <div className="flex flex-col rounded-lg max-w-[480px] w-full">
         <Button
           className="w-fit mb-4"
           variant="outline"
@@ -495,7 +495,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
           placeholder="Name"
           value={pathway.name}
           onChange={(e) => handleInputChange("name", e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded"
+          className="mb-4 p-2 border  rounded"
         />
         <label className="mt-4 text-md font-medium">
           Description (Optional)
@@ -506,7 +506,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
           placeholder="Description"
           value={pathway.description}
           onChange={(e) => handleInputChange("description", e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded h-24"
+          className="mb-4 p-2 border  rounded h-24"
         />
         <ComboBoxWithHelper
           title="When"
@@ -533,7 +533,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
         />
 
         {pathway.timeType === "time" && (
-          <div className="flex flex-col pl-4 border-l border-gray-200">
+          <div className="flex flex-col pl-4 border-l ">
             {/* <label className="mt-4 text-md font-medium">Time</label>
             <input
               type="time"
@@ -541,7 +541,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
               placeholder="Time"
               value={pathway.time}
               onChange={(e) => handleInputChange("time", e.target.value)}
-              className="mb-4 p-2 border border-gray-300 rounded"
+              className="mb-4 p-2 border  rounded"
             /> */}
 
             <ComboBoxWithHelper
@@ -577,7 +577,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
             />
 
             {pathway.frequency !== "unlimited" && (
-              <div className="flex flex-col pl-4 border-l border-gray-200">
+              <div className="flex flex-col pl-4 border-l ">
                 <label className="mt-4 text-md font-medium"></label>
                 <div>
                   <input
@@ -588,7 +588,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                     onChange={(e) =>
                       handleInputChange("completionLimit", e.target.value)
                     }
-                    className="mb-2 p-2 border border-gray-300 rounded w-[70px] mr-2"
+                    className="mb-2 p-2 border  rounded w-[70px] mr-2"
                   />
                   per {pathway.frequency?.replace("every", "").toLowerCase()}
                 </div>
@@ -604,8 +604,8 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
         )}
 
         {pathway.timeType === "event" && (
-          <div className="flex flex-col pl-4 border-l border-gray-200">
-            <div className="flex items-center justify-between border-gray-300  rounded mt-6">
+          <div className="flex flex-col pl-4 border-l">
+            <div className="flex items-center justify-between   rounded mt-6">
               <div>
                 <label className="mt-4 text-md font-medium">Trigger</label>
                 <QuestionHelpBox>help</QuestionHelpBox>
@@ -636,7 +636,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
           helperChildren={"Auto play is..."}
         />
         {openMusic && (
-          <div className="flex flex-col pl-4 border-l border-gray-200">
+          <div className="flex flex-col pl-4 border-l">
             <SwitchWithHelper
               title="Auto Play Music"
               value={pathway.autoPlayMusic}
@@ -666,7 +666,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
           helperChildren={"Gamify is..."}
         />
         {isGamify && (
-          <div className="flex flex-col pl-4 border-l border-gray-200">
+          <div className="flex flex-col pl-4 border-l">
             <label className="mt-4 text-md font-medium">
               Reward For Completion
             </label>
@@ -677,7 +677,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                 placeholder="50"
                 value={`${pathway.reward}`}
                 onChange={(e) => handleInputChange("reward", e.target.value)}
-                className="mb-2 p-2 border border-gray-300 rounded w-[70px] mr-2"
+                className="mb-2 p-2 border  rounded w-[70px] mr-2"
               />
               🥮
             </div>
@@ -706,7 +706,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                 placeholder={`Step ${index + 1} Question`}
                 value={step.question}
                 onChange={(e) => handleStepChange(index, e)}
-                className="mb-2 p-2 border border-gray-300 rounded w-full"
+                className="mb-2 p-2 border  rounded w-full"
               />
 
               <label className="mt-4 text-md font-medium">
@@ -719,10 +719,10 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                 multiline
                 value={step.context}
                 onChange={(e) => handleStepChange(index, e)}
-                className="mb-4 p-2 border border-gray-300 rounded h-24"
+                className="mb-4 p-2 border  rounded h-24"
               />
 
-              {/* <div className="border-t border-gray-200 mt-4"></div> */}
+              {/* <div className="border-t mt-4"></div> */}
 
               <ComboBoxWithHelper
                 title="Response Type"
@@ -753,7 +753,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
               />
 
               {step.responseType == "text" && (
-                <div className="flex flex-col pl-4 border-l border-gray-200">
+                <div className="flex flex-col pl-4 border-l">
                   <SwitchWithHelper
                     title="Set Minimum Text"
                     value={step.minText}
@@ -774,7 +774,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                         placeholder={`Minimum Text`}
                         value={step.minText}
                         onChange={(e) => handleStepChange(index, e)}
-                        className="p-2 border border-gray-300 rounded w-[70px]"
+                        className="p-2 border  rounded w-[70px]"
                       />
                       <div>Words</div>
                     </div>
@@ -783,7 +783,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
               )}
 
               {step.responseType === "checklist" && (
-                <div className="flex flex-col pl-4 border-l border-gray-200">
+                <div className="flex flex-col pl-4 border-l">
                   <CheckboxOptions
                     stepIndex={index}
                     options={step.options || [""]}
@@ -793,7 +793,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
               )}
 
               {step.responseType === "slider" && (
-                <div className="flex flex-col pl-4 border-l border-gray-200">
+                <div className="flex flex-col pl-4 border-l">
                   <Slider
                     defaultValue={[1]}
                     max={step.sliderMax || 10}
@@ -809,7 +809,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                         placeholder="1"
                         value={step.sliderMin}
                         onChange={(e) => handleStepChange(index, e)}
-                        className="mb-2 p-2 border border-gray-300 rounded w-full"
+                        className="mb-2 p-2 border  rounded w-full"
                       />
                     </div>
                     <div className="w-[100px]">
@@ -820,7 +820,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                         placeholder="10"
                         value={step.sliderMax}
                         onChange={(e) => handleStepChange(index, e)}
-                        className="mb-2 p-2 border border-gray-300 rounded w-full"
+                        className="mb-2 p-2 border  rounded w-full"
                       />
                     </div>
                   </div>
@@ -840,7 +840,7 @@ const PathwayBuilder = observer(({ pathwayToEdit = false }) => {
                 placeholder="30"
                 value={step.timer}
                 onChange={(e) => handleStepChange(index, e)}
-                className="mb-2 p-2 border border-gray-300 rounded w-full"
+                className="mb-2 p-2 border  rounded w-full"
               />
 
               <SwitchWithHelper

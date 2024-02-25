@@ -17,7 +17,7 @@ const Card = ({ card, onDraw, onPlay, onActivate }) => {
         <p className="text-gray-700 text-base">{card.effect}</p>
       </div>
       <div className="px-6 pt-4 pb-2">
-        <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+        <span className="inline-block  rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
           {cardTypeEmoji[card.type]} {card.type}
         </span>
         {onDraw && (
@@ -54,7 +54,7 @@ const Hand = () => {
 
   return (
     <div className="grid grid-cols-6 gap-4 border-4 relative">
-      <div className="absolute left-[50%] top-[-20px] text-xl font-bold bg-gray-200 p-1 px-4 rounded">
+      <div className="absolute left-[50%] top-[-20px] text-xl font-bold p-1 px-4 rounded">
         Hand
       </div>
       {hand.length === 0 && (
@@ -72,7 +72,7 @@ const PlayArea = () => {
   const { playedCards, activateCard } = useGame();
   return (
     <div className="grid grid-cols-6 gap-4 border-4 relative">
-      <div className="absolute left-[50%] top-[-20px] text-xl font-bold bg-gray-200 p-1 px-4 rounded">
+      <div className="absolute left-[50%] top-[-20px] text-xl font-bold  p-1 px-4 rounded">
         Board
       </div>
       {playedCards.length === 0 && (

@@ -90,7 +90,7 @@ const myIdeas = [
 
 const Idea = ({ idea }) => {
   return (
-    <div className="flex flex-col p-4 gap-4 w-[300px] border border-gray-200">
+    <div className="flex flex-col p-4 gap-4 w-[300px] border">
       <Image src={idea.image} alt={idea.title} width={200} height={200} />
       <div className="text-xl font-bold">{idea.title}</div>
       <div className="text-md">{idea.description}</div>

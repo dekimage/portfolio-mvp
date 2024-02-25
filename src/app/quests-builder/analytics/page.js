@@ -177,7 +177,7 @@ const LogDetails = ({ log }) => {
           <div key={index} className="border-t mt-3">
             <div className="mt-3">
               <div className="flex">
-                <div className="text-lg font-semibold text-gray-800   rounded  px-2 w-fit h-fit">
+                <div className="text-lg font-semibold  rounded  px-2 w-fit h-fit">
                   {index + 1}.
                 </div>
                 <div className="text-xl">{step.question}</div>
@@ -210,7 +210,7 @@ const LogDetails = ({ log }) => {
           <div className=""></div>
           <div className="mt-3">
             <div className="flex">
-              <div className="text-lg font-semibold text-gray-800  border border-gray-200 rounded py-1 px-2 w-fit h-fit">
+              <div className="text-lg font-semibold  border rounded py-1 px-2 w-fit h-fit">
                 Distractions
               </div>
             </div>
@@ -229,7 +229,7 @@ const LogDetails = ({ log }) => {
           <div className=""></div>
           <div className="mt-3">
             <div className="flex">
-              <div className="text-lg font-semibold text-gray-800 border border-gray-200 rounded py-1 px-2 w-fit h-fit">
+              <div className="text-lg font-semibold border  rounded py-1 px-2 w-fit h-fit">
                 Feedback
               </div>
             </div>
@@ -248,7 +248,7 @@ const LogDetails = ({ log }) => {
 
       {log.goldEarned && (
         <div>
-          <div className="text-lg font-semibold text-gray-800 border border-gray-200 rounded py-1 px-2 w-fit h-fit">
+          <div className="text-lg font-semibold  border rounded py-1 px-2 w-fit h-fit">
             Loot
           </div>
           {log.goldEarned && <div className="">+{log.goldEarned} 🥮</div>}
@@ -262,7 +262,7 @@ const LogCard = ({ log }) => {
   const { totalDuration, stepsCompleted, pathway } = log;
   const [isExpanded, setIsExpanded] = useState(false);
   return (
-    <div className="flex flex-col  justify-between p-2 border border-gray-200 rounded-md">
+    <div className="flex flex-col  justify-between p-2 border  rounded-md">
       <div
         className="flex items-center cursor-pointer"
         onClick={() => {
@@ -307,7 +307,7 @@ const LogCardReward = ({ log }) => {
   const { totalDuration, stepsCompleted, reward } = log;
   const [isExpanded, setIsExpanded] = useState(false);
   return (
-    <div className="flex flex-col  justify-between p-2 border border-gray-200 rounded-md">
+    <div className="flex flex-col  justify-between p-2 border rounded-md">
       <div className="flex items-center">
         <div className="flex items-center">
           <div
@@ -472,7 +472,7 @@ const LogsPage = observer(() => {
               pathwayId || rewardId,
               pathwayId ? "pathway" : "reward"
             )}
-            <div className="ml-2 w-4 h-4 flex items-center justify-center rounded-full border border-transparent text-gray-600 bg-gray-200 cursor-pointer transition duration-300">
+            <div className="ml-2 w-4 h-4 flex items-center justify-center rounded-full border border-transparent  cursor-pointer transition duration-300">
               <X size="14px" />
             </div>
           </Badge>

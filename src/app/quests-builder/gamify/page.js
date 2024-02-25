@@ -138,7 +138,7 @@ const RewardBuilder = ({ setIsCreate, rewardState, setRewardState }) => {
           placeholder="Watch 20 minutes of Netflix"
           value={reward.name}
           onChange={(e) => handleInputChange("name", e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="p-2 border rounded"
         />
         <label className="mt-4 text-md font-medium">Cost</label>
         <div className="flex gap-2 items-center">
@@ -148,7 +148,7 @@ const RewardBuilder = ({ setIsCreate, rewardState, setRewardState }) => {
             placeholder={100}
             value={reward.cost}
             onChange={(e) => handleInputChange("cost", e.target.value)}
-            className="p-2 border border-gray-300 rounded max-w-[80px]"
+            className="p-2 border rounded max-w-[80px]"
           />
           <div className="text-2xl">🥮</div>
         </div>
@@ -167,7 +167,7 @@ const RewardBuilder = ({ setIsCreate, rewardState, setRewardState }) => {
               placeholder={3}
               value={reward.customTimes}
               onChange={(e) => handleInputChange("customTimes", e.target.value)}
-              className="p-2 border border-gray-300 rounded max-w-[80px]"
+              className="p-2 border rounded max-w-[80px]"
             />
             <div>times in</div>
             <input
@@ -176,7 +176,7 @@ const RewardBuilder = ({ setIsCreate, rewardState, setRewardState }) => {
               placeholder={1}
               value={reward.customDays}
               onChange={(e) => handleInputChange("customDays", e.target.value)}
-              className="p-2 border border-gray-300 rounded max-w-[80px]"
+              className="p-2 border rounded max-w-[80px]"
             />
             <div>{reward.customDays > 1 ? "days" : "day"}</div>
           </div>
@@ -226,7 +226,7 @@ const Reward = ({
     isPathway, // if its pathway - play pathway, disable only after completed!
   } = reward;
   return (
-    <div className="flex items-center justify-between  p-2 border border-gray-200 rounded-md">
+    <div className="flex items-center justify-between  p-2 border rounded-md">
       <div className="flex items-center">
         <div
           className="text-2xl mr-2 border-gray border p-4 rounded"

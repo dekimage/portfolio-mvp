@@ -5,25 +5,27 @@ import { Separator } from "@/components/ui/separator";
 import { VerticalNavbar } from "./VerticalNavbar";
 
 import {
+  BookOpen,
   CalendarCheck,
   Gamepad2,
   GaugeCircle,
+  ImagePlus,
   LayoutDashboard,
   ListMinus,
   Plus,
   Search,
+  Settings,
+  Store,
+  User,
 } from "lucide-react";
 import MobxStore from "../mobx";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { observer } from "mobx-react";
-import { LoadingSpinner } from "./LoadingSpinner";
 import { UserNav } from "./ReusableProfileMenu";
 import Image from "next/image";
-import logoImg from "../assets/pathway-logo.png";
-import streakImg from "../assets/streak.png";
-import coinImg from "../assets/coin.png";
+import logoImg from "../assets/story-rpg-logo.png";
 import MobileHeader from "./MobileHeader";
 import {
   Dialog,
@@ -95,7 +97,7 @@ const ReusableLayout = observer(({ children }) => {
 
   const pathname = usePathname();
   const isRoute = (route) => {
-    if (route === "quests-builder") {
+    if (route === "story-rpg") {
       return pathname.toLowerCase() === `/${route.toLowerCase()}`
         ? "default"
         : "ghost";
@@ -120,59 +122,47 @@ const ReusableLayout = observer(({ children }) => {
           >
             <div className="flex h-[52px] items-center justify-center px-2">
               <Image src={logoImg} width={32} height={32} alt="logo" />
-              <div className="text-2xl font-bold ml-1">PathWays</div>
+              <div className="text-2xl font-bold ml-1">Story RPG</div>
             </div>
             <Separator />
             <VerticalNavbar
               links={[
                 {
-                  title: "Dashboard",
-                  icon: LayoutDashboard,
-                  variant: isRoute("quests-builder"),
-                  href: "quests-builder",
+                  title: "Projects",
+                  icon: BookOpen,
+                  variant: isRoute("story-rpg"),
+                  href: "story-rpg",
                 },
                 {
-                  title: "Today",
-                  icon: CalendarCheck,
-                  variant: isRoute("Today"),
-                  href: "quests-builder/today",
-                },
-                {
-                  title: "Explore",
-                  icon: Search,
-                  variant: isRoute("Explore"),
-                  href: "quests-builder/explore",
-                },
-                {
-                  title: "Analytics",
-                  icon: GaugeCircle,
-                  variant: isRoute("Analytics"),
-                  href: "quests-builder/analytics",
-                },
-                {
-                  title: "Gamify",
+                  title: "Games",
                   icon: Gamepad2,
-                  variant: isRoute("Gamify"),
-                  href: "quests-builder/gamify",
+                  variant: isRoute("Games"),
+                  href: "story-rpg/games",
                 },
-                // {
-                //   title: "Collection",
-                //   icon: Boxes,
-                //   variant: isRoute("Collection"),
-                //   href: "quests-builder/collection",
-                // },
-                // {
-                //   title: "Profile",
-                //   icon: User,
-                //   variant: isRoute("Profile"),
-                //   href: "quests-builder/profile",
-                // },
-                // {
-                //   title: "Settings",
-                //   icon: Settings,
-                //   variant: isRoute("Settings"),
-                //   href: "quests-builder/settings",
-                // },
+                {
+                  title: "Marketplace",
+                  icon: Store,
+                  variant: isRoute("Marketplace"),
+                  href: "story-rpg/marketplace",
+                },
+                {
+                  title: "Assets",
+                  icon: ImagePlus,
+                  variant: isRoute("Analytics"),
+                  href: "story-rpg/analytics",
+                },
+                {
+                  title: "Profile",
+                  icon: User,
+                  variant: isRoute("Profile"),
+                  href: "story-rpg/profile",
+                },
+                {
+                  title: "Settings",
+                  icon: Settings,
+                  variant: isRoute("Settings"),
+                  href: "story-rpg/settings",
+                },
               ]}
             />
             <Separator />
@@ -180,18 +170,18 @@ const ReusableLayout = observer(({ children }) => {
               <CreateListDialog />
             </div>
 
-            {lists.length > 0 && (
+            {/* {lists.length > 0 && (
               <VerticalNavbar
                 links={lists.map((list) => ({
                   title: list.name,
                   icon: ListMinus,
                   variant: isRoute(list.id),
-                  href: `quests-builder/list/${list.id}`,
+                  href: `story-rpg/list/${list.id}`,
                 }))}
               />
-            )}
+            )} */}
           </ResizablePanel>
-          {/* <ResizableHandle /> */}
+
           <ResizablePanel
             className="border-l border-gray-[#e5e7eb]"
             defaultSize={defaultLayout[1]}
@@ -199,51 +189,23 @@ const ReusableLayout = observer(({ children }) => {
             style={{ overflow: "auto" }}
           >
             <div>
-              {/* {MobxStore.loading ? (
-              <LoadingSpinner />
-            ) : (
-              <div>
-              {MobxStore.user ? (
-                  <p>Logo</p>
-                ) : (
-                  <div>
-                    <Button onClick={handleSignIn}>Sign In Anonymously</Button>
-                  </div>
-                )}
-              </div>
-            )} */}
-
-              <div className="w-full h-[53px] flex justify-end items-center p-2 border-b  gap-4">
+              <div className="w-full h-[53px] flex justify-end items-center p-2 border-b gap-4">
                 {user ? (
                   <>
-                    <div className="flex items-center gap-1">
-                      {MobxStore.user?.streak || 0}{" "}
-                      <Image
-                        src={streakImg}
-                        width={28}
-                        height={28}
-                        alt="streak"
-                      />
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {" "}
-                      {MobxStore.user?.gold}{" "}
-                      <Image src={coinImg} width={28} height={28} alt="coin" />
-                    </div>
-                    <Link href="/quests-builder/new-pathway">
+                    {/* <Link href="/story-rpg/new-pathway">
                       <Button>
                         <Plus size={16} className="mr-2" /> Create Pathway
                       </Button>
-                    </Link>
+                    </Link> */}
                     <ModeToggle />
                     <UserNav user={user} logout={logout} />
                   </>
                 ) : (
                   <div className="flex gap-2">
-                    <Link href="/quests-builder/login">
+                    <Link href="/story-rpg/login">
                       <Button variant="outline">Login</Button>
                     </Link>
-                    <Link href="/quests-builder/signup">
+                    <Link href="/story-rpg/signup">
                       <Button>Create Free Account</Button>
                     </Link>
                   </div>

@@ -1,19 +1,63 @@
 import { makeAutoObservable, runInAction } from "mobx";
 
+import { auth, db } from "./firebase";
+import {
+  onAuthStateChanged,
+  signInAnonymously,
+  getAuth,
+  EmailAuthProvider,
+  linkWithCredential,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  addDoc,
+  deleteDoc,
+  query,
+  onSnapshot,
+  updateDoc,
+  getDocs,
+  where,
+  orderBy,
+  limit,
+} from "firebase/firestore";
+
 import { rooms, items, stats } from "./data";
 
+const DEFAULT_USER = {
+  isCreator: true,
+};
+
 class Store {
+  user = null;
   pages = rooms;
   items = items;
   stats = stats;
+
+  loading = false;
+
+  projects = [];
 
   inventory = [];
   usedOptions = [];
 
   activePage = this.pages[0];
 
+  //reusable from pathways
+  isMobileOpen = false;
+  // setIsMobileOpen
+
   constructor() {
     makeAutoObservable(this);
+    this.initializeAuth();
     this.handleOptionClick = this.handleOptionClick.bind(this);
     this.setActivePage = this.setActivePage.bind(this);
     this.updateStat = this.updateStat.bind(this);
@@ -25,6 +69,54 @@ class Store {
     this.meetsStatCondition = this.meetsStatCondition.bind(this);
     this.useOption = this.useOption.bind(this);
     this.getOptionUsage = this.getOptionUsage.bind(this);
+    this.initializeAuth = this.initializeAuth.bind(this);
+    this.loginWithEmail = this.loginWithEmail.bind(this);
+    this.signupWithEmail = this.signupWithEmail.bind(this);
+    this.logout = this.logout.bind(this);
+    this.signInWithGoogle = this.signInWithGoogle.bind(this);
+    this.sendPasswordReset = this.sendPasswordReset.bind(this);
+
+    this.getProjects = this.getProjects.bind(this);
+  }
+
+  initializeAuth() {
+    const auth = getAuth();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        runInAction(() => {
+          this.user = { uid: user.uid, ...userDoc.data() };
+
+          this.getProjects();
+        });
+      } else {
+        runInAction(() => {
+          this.user = null;
+        });
+      }
+    });
+  }
+
+  getProjects() {
+    if (!this.userId) return;
+
+    collection("projects")
+      .where("creatorId", "==", this.userId)
+      .get()
+      .then((querySnapshot) => {
+        const projects = [];
+        querySnapshot.forEach((doc) => {
+          projects.push({ id: doc.id, ...doc.data() });
+        });
+        this.projects = projects;
+        console.log("Projects fetched: ", projects);
+      })
+      .catch((error) => {
+        console.error("Error fetching projects: ", error);
+      });
   }
 
   useOption(optionIndex) {
@@ -155,39 +247,117 @@ class Store {
     });
   };
 
-  // isOptionUnlocked = (conditions) => {
-  //   for (let condition of conditions) {
-  //     if (condition.item) {
-  //       const hasItem = this.inventory.some(
-  //         (item) => item.id === condition.item
-  //       );
-  //       if (!hasItem) return false;
-  //     }
+  async loginWithEmail({ email, password }) {
+    console.log({ email, password });
+    try {
+      this.loading = true;
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      runInAction(() => {
+        console.log(userCredential.user);
+        this.user = userCredential.user;
+        this.loading = false;
+      });
+    } catch (error) {
+      console.error("Error logging in:", error);
+      runInAction(() => {
+        this.loading = false;
+      });
+      throw error;
+    }
+  }
 
-  //     if (condition.stat) {
-  //       const [statId, operator, value] = condition.stat;
-  //       const stat = this.stats.find((stat) => stat.id === statId);
-  //       if (!stat) continue;
+  async signupWithEmail(email, password, username) {
+    try {
+      this.loading = true;
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-  //       switch (operator) {
-  //         case "<":
-  //           if (!(stat.value < value)) return false;
-  //           break;
-  //         case ">":
-  //           if (!(stat.value > value)) return false;
-  //           break;
-  //         case "=":
-  //           if (!(stat.value === value)) return false;
-  //           break;
-  //         default:
-  //           console.error("Invalid operator", operator);
-  //           return false;
-  //       }
-  //     }
-  //   }
+      // Additional user properties
+      const newUserProfile = {
+        ...DEFAULT_USER,
+        createdAt: new Date(),
+        username: username,
+        email: email,
+        uid: userCredential.user.uid,
+      };
 
-  //   return true;
-  // };
+      // Create a user profile in Firestore
+      await setDoc(doc(db, "users", userCredential.user.uid), newUserProfile);
+
+      runInAction(() => {
+        this.user = newUserProfile;
+        this.loading = false;
+      });
+    } catch (error) {
+      console.error("Error signing up:", error);
+      runInAction(() => {
+        this.loading = false;
+      });
+      throw error;
+    }
+  }
+
+  async logout() {
+    try {
+      await signOut(auth); // Sign out from Firebase Authentication
+      runInAction(() => {
+        this.user = null; // Reset the user in the store
+      });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Handle any errors that occur during logout
+    }
+  }
+
+  async signInWithGoogle() {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        const newUserProfile = {
+          ...DEFAULT_USER,
+          createdAt: new Date(),
+          username: user.displayName || "New User",
+          email: user.email,
+          uid: user.uid,
+        };
+
+        await setDoc(userDocRef, newUserProfile);
+
+        runInAction(() => {
+          this.user = newUserProfile;
+        });
+      } else {
+        runInAction(() => {
+          this.user = { uid: user.uid, ...userDoc.data() };
+        });
+      }
+    } catch (error) {
+      console.error("Error with Google sign-in:", error);
+    }
+  }
+
+  async sendPasswordReset(email) {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      // Handle success, such as showing a message to the user
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      // Handle errors, such as invalid email, etc.
+    }
+  }
 }
 
 const MobxStore = new Store();

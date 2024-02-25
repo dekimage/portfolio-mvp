@@ -47,7 +47,7 @@ const Checkbox = ({ label, checked, onChange }) => {
         checked={checked}
         onChange={onChange}
         className={`form-checkbox h-5 w-5 text-black ${
-          checked ? "bg-black" : "bg-white border border-gray-300"
+          checked ? "bg-black" : "bg-white border"
         }`}
       />
       <span className="text-xl">{label}</span>
@@ -322,7 +322,7 @@ const ResponseItem = ({ response, index }) => {
           <div className="w-[60px]"></div>
         ) : (
           <button
-            className="py-2 px-4 bg-gray-400 text-white rounded hover:bg-gray-500 text-sm"
+            className="py-2 px-4 text-white rounded text-sm"
             onClick={() => setIsShowing(!isShowing)}
           >
             {isShowing ? "Hide" : "View"}
@@ -330,7 +330,7 @@ const ResponseItem = ({ response, index }) => {
         )}
       </div>
       {isShowing && (
-        <div className="rounded-lg mt-2 p-4 bg-gray-200">
+        <div className="rounded-lg mt-2 p-4">
           {response.responseType == "checklist" &&
             response.response.map((r) => <div key={r}>{r}</div>)}
 
@@ -398,7 +398,7 @@ const ProgressBar = ({ currentStep, pathway }) => {
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex-1 mr-4">
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <div className="w-full rounded-full h-2.5">
           <div
             className="bg-slate-500 h-2.5 rounded-full"
             style={{
@@ -416,7 +416,7 @@ const ProgressBar = ({ currentStep, pathway }) => {
 
 const Timer = ({ timer, restartTimer, isPlaying, setIsPlaying }) => {
   return (
-    <div className="mb-4 flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+    <div className="mb-4 flex items-center justify-between p-2 rounded-lg">
       <div className="flex items-center">
         {isPlaying ? (
           <button
@@ -589,17 +589,15 @@ export const PathwayPlayer = observer(({ pathway }) => {
 
   const canProceed = true;
   // timer === 0 && userInput.length >= step.minText;
-  console.log(isPathwayEditView);
+
   if (isPathwayEditView) {
     return <PathwayBuilder pathwayToEdit={pathway} />;
   }
 
   if (sessionComplete) {
     return (
-      <div className="flex flex-col max-w-lg  p-6 bg-white rounded-lg shadow-md mt-8 ml-8 border border-gray">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Congratulations!
-        </h2>
+      <div className="flex flex-col max-w-lg  p-6 rounded-lg shadow-md mt-8 ml-8 border border-gray">
+        <h2 className="text-2xl font-semibold  mb-4">Congratulations!</h2>
         <div className="flex justify-center mb-4">
           {responses.map((res, i) => (
             <div key={i}>
@@ -646,7 +644,7 @@ export const PathwayPlayer = observer(({ pathway }) => {
   }
 
   return (
-    <div className="flex flex-col max-w-lg  p-4 bg-white rounded-lg shadow-md mt-8 ml-8 border border-gray">
+    <div className="flex flex-col max-w-lg  p-4  rounded-lg shadow-md mt-8 ml-8 border border-gray">
       <audio
         ref={audioRef}
         src={`rpg-music-${pathway.musicPack || 2}.mp3`}
@@ -675,7 +673,7 @@ export const PathwayPlayer = observer(({ pathway }) => {
         setIsPlaying={setIsPlaying}
       />
 
-      <h2 className="text-md text-gray-800 mb-2">
+      <h2 className="text-md mb-2">
         <div>Step {currentStep + 1}:</div>
         <div className="text-2xl my-2">{step.question}</div>
 
@@ -684,7 +682,7 @@ export const PathwayPlayer = observer(({ pathway }) => {
 
       {step.responseType === "text" && (
         <textarea
-          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent mb-4 min-h-[250px]"
+          className="w-full p-3 border  rounded focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent mb-4 min-h-[250px]"
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
           placeholder="Your response..."
@@ -749,7 +747,7 @@ export const PathwayPlayer = observer(({ pathway }) => {
       </button>
       {step.allowSkip && (
         <button
-          className="py-2 mt-2 px-4 bg-gray-400 text-white rounded hover:bg-gray-500"
+          className="py-2 mt-2 px-4  text-white rounded"
           onClick={handleSkipStep}
         >
           Skip

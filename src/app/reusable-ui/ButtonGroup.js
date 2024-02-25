@@ -16,7 +16,7 @@ const ButtonGroup = ({ buttons, handleClick }) => {
           onClick={() => handleButtonClick(button.value)}
           className={`px-4 py-2 ${
             index === 0 ? "border-l" : "" // Left border for the first button
-          } border-t border-b border-r border-gray-300 ${
+          } border-t border-b border-r  ${
             selectedButton === button.value
               ? "bg-blue-500 text-white"
               : "bg-white"

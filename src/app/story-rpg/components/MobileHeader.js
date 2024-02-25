@@ -28,7 +28,7 @@ const MobileHeader = observer(() => {
 
   return (
     <div className="flex justify-between items-center border-b relative h-[52px] z-10000 p-4">
-      <div className="font-bold">Pathways</div>
+      <div className="font-bold">Story RPG</div>
       <Button onClick={toggleMenu} className="p-2">
         {isMobileOpen ? (
           <X className="h-6 w-6" />
@@ -45,36 +45,36 @@ const MobileHeader = observer(() => {
               {
                 title: "Dashboard",
                 icon: LayoutDashboard,
-                variant: isRoute("quests-builder"),
-                href: "quests-builder",
+                variant: isRoute("story-rpg"),
+                href: "story-rpg",
                 callBack: () => setIsMobileOpen(false),
               },
               {
                 title: "Today",
                 icon: CalendarCheck,
                 variant: isRoute("Today"),
-                href: "quests-builder/today",
+                href: "story-rpg/today",
                 callBack: () => setIsMobileOpen(false),
               },
               {
                 title: "Explore",
                 icon: Search,
                 variant: isRoute("Explore"),
-                href: "quests-builder/explore",
+                href: "story-rpg/explore",
                 callBack: () => setIsMobileOpen(false),
               },
               {
                 title: "Analytics",
                 icon: GaugeCircle,
                 variant: isRoute("Analytics"),
-                href: "quests-builder/analytics",
+                href: "story-rpg/analytics",
                 callBack: () => setIsMobileOpen(false),
               },
               {
                 title: "Gamify",
                 icon: Gamepad2,
                 variant: isRoute("Gamify"),
-                href: "quests-builder/gamify",
+                href: "story-rpg/gamify",
                 callBack: () => setIsMobileOpen(false),
               },
             ]}
