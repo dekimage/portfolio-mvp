@@ -75,7 +75,6 @@ class Store {
     this.logout = this.logout.bind(this);
     this.signInWithGoogle = this.signInWithGoogle.bind(this);
     this.sendPasswordReset = this.sendPasswordReset.bind(this);
-
     this.getProjects = this.getProjects.bind(this);
   }
 
