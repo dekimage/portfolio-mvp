@@ -11,6 +11,34 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Combobox } from "@/app/story-rpg/components/ComboBox";
+
+const QuestionHelpBox = ({ children }) => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild className="w-2 h-6 ml-1">
+        <Button variant="outline">?</Button>
+      </DialogTrigger>
+      <DialogContent>{children}</DialogContent>
+    </Dialog>
+  );
+};
+
+const SwitchWithHelper = ({ helperChildren, title, value, callback }) => {
+  return (
+    <div className="flex items-center justify-between   rounded mt-6">
+      <div>
+        <label className="mt-4 text-md font-medium">{title}</label>
+        <QuestionHelpBox>{helperChildren}</QuestionHelpBox>
+      </div>
+      <Switch checked={value} onCheckedChange={() => callback()} />
+    </div>
+  );
+};
 
 const StoryPage = observer(() => {
   const {
@@ -25,6 +53,8 @@ const StoryPage = observer(() => {
     meetsStatCondition,
   } = MobxStore;
   const { name, description, options, page, img } = activePage;
+
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const Stats = ({ stats }) => (
     <div className="flex gap-4 border-t p-4">
@@ -47,12 +77,35 @@ const StoryPage = observer(() => {
     </div>
   );
 
-  const Option = ({ option, unlocked, remainingUses, usageCount, index }) => {
+  const Option = ({
+    option,
+    unlocked,
+    remainingUses,
+    usageCount,
+    index,
+    isEditMode,
+  }) => {
     const [showLock, setShowLock] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    const [isGiveStats, setIsGiveStats] = useState(false);
+    const [selectedStat, setSelectedStat] = useState("");
+    const [selectedOperation, setSelectedOperation] = useState("");
+    const [statValue, setStatValue] = useState("1");
+
+    const [isGiveItem, setIsGiveItem] = useState(false);
+    const [selectedItem, setSelectedItem] = useState("");
+
+    const [isPageLinkDisabled, setIsPageLinkDisabled] = useState(false);
+    const [isOptionHidden, setIsOptionHidden] = useState(false);
+    const [requirementOption, setRequirementOption] = useState("");
+
+    console.log({ requirementOption });
     return (
       <div
         className="flex flex-col border relative"
         onClick={() => {
+          if (isEditMode) return;
           !unlocked && setShowLock(!showLock);
           unlocked && handleOptionClick(option, index);
         }}
@@ -69,7 +122,16 @@ const StoryPage = observer(() => {
           )}
 
           <div className="bg-yellow-200 w-6 h-full min-h-[60px]"></div>
-          <div className="flex w-full pl-2 text-md">{option.label}</div>
+          {isEditMode ? (
+            <Input
+              className="flex w-full pl-2 text-md"
+              value={option.label}
+              onChange={(e) => (option.label = e.target.value)}
+            />
+          ) : (
+            <div className="flex w-full pl-2 text-md">{option.label}</div>
+          )}
+
           <div className="flex gap-1 bg-yellow-200 h-full w-24 justify-center items-center px-2 text-black font-bold">
             <Image
               src={unlocked ? bookIcon : lockIcon}
@@ -150,6 +212,135 @@ const StoryPage = observer(() => {
             </div>
           )}
         </div>
+        {isEditMode && (
+          <div
+            className="text-blue-500 hover:text-blue-200 transition cursor-pointer text-sm p-2"
+            onClick={() => setIsSettingsOpen(true)}
+          >
+            +add options
+          </div>
+        )}
+        {isSettingsOpen && (
+          <div className="flex flex-col gap-2 p-2">
+            <SwitchWithHelper
+              title="Adjust Player Stats"
+              value={isGiveStats}
+              callback={() => setIsGiveStats(!isGiveStats)}
+              helperChildren={"Auto play is..."}
+            />
+            {isGiveStats && (
+              <div className="gap-2 p-2 flex">
+                <Combobox
+                  value={selectedStat}
+                  setValue={setSelectedStat}
+                  searchLabel={"Search Stats"}
+                  options={[{ label: "Health" }, { label: "Strength" }]}
+                />
+                <Combobox
+                  value={selectedOperation}
+                  setValue={setSelectedOperation}
+                  options={[{ label: "+" }, { label: "-" }]}
+                  select
+                />
+                <Input className="w-16" value={statValue} />
+              </div>
+            )}
+
+            <SwitchWithHelper
+              title="Give Item"
+              value={isGiveItem}
+              callback={() => setIsGiveItem(!isGiveItem)}
+              helperChildren={"Auto play is..."}
+            />
+            {isGiveItem && (
+              <div className="gap-2 p-2 flex items-center">
+                <div>Obtain Item: </div>
+                <Combobox
+                  value={selectedItem}
+                  setValue={setSelectedItem}
+                  searchLabel={"Search Items"}
+                  options={[{ label: "Obelisk" }, { label: "Sword" }]}
+                />
+              </div>
+            )}
+
+            <SwitchWithHelper
+              title="Disable Page Link"
+              value={isPageLinkDisabled}
+              callback={() => setIsPageLinkDisabled(!isPageLinkDisabled)}
+              helperChildren={"Auto play is..."}
+            />
+
+            <SwitchWithHelper
+              title="Inaccessible Option"
+              value={isOptionHidden}
+              callback={() => setIsOptionHidden(!isOptionHidden)}
+              helperChildren={"Auto play is..."}
+            />
+
+            {isOptionHidden && (
+              <div className="gap-4 p-2 flex flex-col">
+                <Combobox
+                  label="Option is"
+                  value={requirementOption}
+                  setValue={setRequirementOption}
+                  select
+                  options={[
+                    { label: "Hidden", value: "hidden" },
+                    { label: "Locked", value: "locked" },
+                  ]}
+                />
+
+                <Combobox
+                  label="Requirement"
+                  value={requirementOption}
+                  setValue={setRequirementOption}
+                  select
+                  options={[
+                    { label: "Give Item", value: "give item" },
+                    { label: "Have Item", value: "have item" },
+                    { label: "Give Stat", value: "give stat" },
+                    { label: "Have Stat", value: "have stat" },
+                  ]}
+                />
+
+                <div className="flex flex-col gap-4">
+                  {(requirementOption == "give item" ||
+                    requirementOption == "have item") && (
+                    <Combobox
+                      value={requirementOption}
+                      setValue={setRequirementOption}
+                      searchLabel="Search Items"
+                      options={[{ label: "Sword" }, { label: "Magic Hat" }]}
+                    />
+                  )}
+                  {(requirementOption == "give stat" ||
+                    requirementOption == "have stat") && (
+                    <div className="gap-2 p-2 flex">
+                      <Combobox
+                        value={requirementOption}
+                        setValue={setRequirementOption}
+                        searchLabel="Search Stats"
+                        options={[{ label: "Agility" }, { label: "Strength" }]}
+                      />
+                      <Combobox
+                        value={requirementOption}
+                        setValue={setRequirementOption}
+                        select
+                        options={[
+                          { label: ">" },
+                          { label: "<" },
+                          { label: "=" },
+                        ]}
+                      />
+                      <Input className="w-16" value={5} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -176,6 +367,7 @@ const StoryPage = observer(() => {
               unlocked={unlocked}
               usageCount={usageCount}
               remainingUses={remainingUses}
+              isEditMode={isEditMode}
             />
           );
         })}
@@ -189,16 +381,46 @@ const StoryPage = observer(() => {
         <ChevronLeft size={20} />
         Back
       </Button>
+      {isEditMode ? (
+        <div>
+          <Button className="w-fit m-4 bg-green-500" variant="outline">
+            Save
+          </Button>
+          <Button
+            className="w-fit m-4"
+            variant="outline"
+            onClick={() => setIsEditMode(!isEditMode)}
+          >
+            Cancel
+          </Button>
+        </div>
+      ) : (
+        <Button onClick={() => setIsEditMode(!isEditMode)}>Edit</Button>
+      )}
+
       <Card className="m-8 flex flex-col m-0 mx-8">
         <div className="w-full h-full flex flex-grow">
           <div className="w-1/2 flex  p-8 flex flex-col">
             <div className="flex gap-1 text-4xl mb-2">
               <Image src={bookIcon} alt="book" height={36} width={36} />
-              {page}
+              {isEditMode ? (
+                <Input className="text-4xl mb-4 flex gap-2" value={page} />
+              ) : (
+                <div className="text-4xl mb-2">{page}</div>
+              )}
             </div>
-            <div className="text-4xl mb-4 flex gap-2">{name}</div>
 
-            <div className="text-md mb-12">{description}</div>
+            {isEditMode ? (
+              <Input className="text-4xl mb-4 flex gap-2" value={name} />
+            ) : (
+              <div className="text-4xl mb-4 flex gap-2">{name}</div>
+            )}
+
+            {isEditMode ? (
+              <Textarea className="text-md mb-12" value={description} />
+            ) : (
+              <div className="text-md mb-12">{description}</div>
+            )}
 
             <Options options={options} />
           </div>
