@@ -1,12 +1,15 @@
+"use client";
 import ProjectCard from "@/components/projects/ProjectCard";
+import { useEffect, useState } from "react";
 
-const projects = [
+const initialProjects = [
   {
     title: "Mini Actionise",
     description: "Small free version of the original Actionise.com App",
     image: "actionise",
     tags: ["App", "Personal Development"],
     url: "actionise",
+    tag: "in progress",
   },
   {
     title: "My Habits",
@@ -15,6 +18,7 @@ const projects = [
     image: "myHabits",
     tags: ["App", "Personal Development"],
     url: "my-habits",
+    tag: "paused",
   },
   {
     title: "Top 50 Concepts",
@@ -23,6 +27,7 @@ const projects = [
     image: "concepts",
     tags: ["App", "Personal Development"],
     url: "top-concepts",
+    tag: "paused",
   },
   {
     title: "Atomic Habits Builder",
@@ -30,6 +35,7 @@ const projects = [
     image: "habits",
     tags: ["App", "Personal Development"],
     url: "atomic-habits-builder",
+    tag: "not started",
   },
   {
     title: "Gamified Quests",
@@ -37,6 +43,7 @@ const projects = [
     image: "quests",
     tags: ["App", "Personal Development"],
     url: "quests-builder",
+    tag: "in progress",
   },
   {
     title: "Wisdom Explorers",
@@ -45,6 +52,7 @@ const projects = [
     tags: ["Board Game", "Card Game", "Personal Development"],
     url: "wisdom-explorers",
     image: "wisdomExplorer",
+    tag: "paused",
   },
   {
     title: "Robo Rally",
@@ -53,6 +61,7 @@ const projects = [
     tags: ["Board Game", "Card Game", "Programming"],
     url: "robo-rally",
     image: "roboRally",
+    tag: "paused",
   },
   {
     title: "Ugly Tasks",
@@ -61,6 +70,7 @@ const projects = [
     tags: ["App", "Personal Development"],
     url: "ugly-tasks",
     image: "uglyTasks",
+    tag: "not started",
   },
   {
     title: "Story RPG Tool",
@@ -68,10 +78,25 @@ const projects = [
     tags: ["App", "Personal Development"],
     url: "story-rpg",
     image: "storyRpg",
+    tag: "in progress",
   },
 ];
 
 export default function Home() {
+  const [sortedProjects, setSortedProjects] = useState([]);
+  useEffect(() => {
+    // Function to sort projects by their tag
+    const sortProjects = () => {
+      const sorted = [...initialProjects].sort((a, b) => {
+        const tagsOrder = { "not started": 3, "in progress": 1, paused: 2 };
+        return tagsOrder[a.tag] - tagsOrder[b.tag];
+      });
+      setSortedProjects(sorted);
+    };
+
+    // Call the sort function
+    sortProjects();
+  }, []);
   return (
     <main className="flex  flex-col items-center justify-between pt-12">
       <div className="flex flex-col items-center justify-center">
@@ -79,7 +104,7 @@ export default function Home() {
         <p className="text-xl text-center mt-6">Explore Projects</p>
       </div>
       <div className="flex flex-wrap w-full mt-12">
-        {projects.map((project) => (
+        {sortedProjects.map((project) => (
           <ProjectCard key={project.title} project={project} />
         ))}
       </div>

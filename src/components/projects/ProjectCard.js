@@ -32,8 +32,30 @@ const imagesLookup = {
   uglyTasks: uglyTasksImg,
 };
 
+const ProjectTag = ({ tag }) => {
+  let color;
+  switch (tag) {
+    case "in progress":
+      color = "yellow";
+      break;
+    case "paused":
+      color = "gray";
+      break;
+
+    case "not started":
+      color = "red";
+    default:
+      break;
+  }
+  return (
+    <Badge variant="screen" className={`w-fit bg-${color}-400`}>
+      {tag}
+    </Badge>
+  );
+};
+
 const ProjectCard = ({ project }) => {
-  const { title, description, image, tags, url } = project;
+  const { title, description, image, tags, url, tag } = project;
 
   return (
     <Card className="m-4 p-y-4 w-80">
@@ -46,6 +68,7 @@ const ProjectCard = ({ project }) => {
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
+        <ProjectTag tag={tag} />
       </CardHeader>
       <CardContent>
         {tags.map((tag) => (
