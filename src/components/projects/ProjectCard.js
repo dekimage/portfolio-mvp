@@ -55,15 +55,28 @@ const ProjectTag = ({ tag }) => {
 };
 
 const ProjectCard = ({ project }) => {
-  const { title, description, image, tags, url, tag } = project;
+  const { title, description, image, tags, url, tag, deployedUrl } = project;
 
   return (
     <Card className="m-4 p-y-4 w-80">
-      <Link href={`/${url}`} className="w-full">
-        <div className="flex justify-center items-center pb-0">
-          <Image src={imagesLookup[image]} alt={title} width={300} />
-        </div>
-      </Link>
+      {deployedUrl ? (
+        <a
+          href={deployedUrl}
+          className="w-full"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div className="flex justify-center items-center pb-0">
+            <Image src={imagesLookup[image]} alt={title} width={300} />
+          </div>
+        </a>
+      ) : (
+        <Link href={`/${url}`} className="w-full">
+          <div className="flex justify-center items-center pb-0">
+            <Image src={imagesLookup[image]} alt={title} width={300} />
+          </div>
+        </Link>
+      )}
 
       <CardHeader>
         <CardTitle>{title}</CardTitle>

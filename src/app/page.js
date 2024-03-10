@@ -77,6 +77,7 @@ const initialProjects = [
     description: "Create your own advanture game.",
     tags: ["App", "Personal Development"],
     url: "story-rpg",
+    deployedUrl: "https://story-rpg.vercel.app/",
     image: "storyRpg",
     tag: "in progress",
   },
