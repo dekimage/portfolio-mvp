@@ -38,11 +38,12 @@ const initialProjects = [
     tag: "not started",
   },
   {
-    title: "Gamified Quests",
-    description: "Gamify your todo lists with quests & rewards",
+    title: "Pathways",
+    description: "Craft personal gamified routines",
     image: "quests",
     tags: ["App", "Personal Development"],
     url: "quests-builder",
+    deployedUrl: "https://pathways-orpin.vercel.app/",
     tag: "in progress",
   },
   {
