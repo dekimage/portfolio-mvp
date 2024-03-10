@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* <style>
+        {/* <style>.
           @import
           url(`https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,200;0,400;0,600;1,200;1,400;1,600&family=Quicksand:wght@400;500;700&family=Teko:wght@400;500&display=swap`);
         </style> */}
