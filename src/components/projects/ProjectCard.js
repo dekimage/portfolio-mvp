@@ -19,6 +19,8 @@ import myHabitsImg from "@/assets/home/my-habits.png";
 import actioniseImg from "@/assets/home/actionise.png";
 import storyRpgImg from "@/assets/home/story-rpg.png";
 import uglyTasksImg from "@/assets/home/ugly-tasks.png";
+import pansynergyImg from "@/assets/home/pansynergy.png";
+import onearenaImg from "@/assets/home/onearena.png";
 
 const imagesLookup = {
   habits: habitsImg,
@@ -30,13 +32,15 @@ const imagesLookup = {
   actionise: actioniseImg,
   storyRpg: storyRpgImg,
   uglyTasks: uglyTasksImg,
+  pansynergy: pansynergyImg,
+  onearena: onearenaImg,
 };
 
 const ProjectTag = ({ tag }) => {
   let color;
   switch (tag) {
     case "in progress":
-      color = "yellow";
+      color = "orange";
       break;
     case "paused":
       color = "gray";
@@ -48,7 +52,11 @@ const ProjectTag = ({ tag }) => {
       break;
   }
   return (
-    <Badge variant="screen" className={`w-fit bg-${color}-400`}>
+    <Badge
+      variant="screen"
+      className={`w-fit bg-${color}-400`}
+      style={{ backgroundColor: color }}
+    >
       {tag}
     </Badge>
   );

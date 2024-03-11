@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 
 const initialProjects = [
   {
+    title: "One Arena",
+    description: "Print & Play One Page Skrimish Game 3v3 Champions",
+    tags: ["Print & Play"],
+    url: "one-arena",
+    image: "onearena",
+    tag: "in progress",
+  },
+  {
     title: "Mini Actionise",
     description: "Small free version of the original Actionise.com App",
     image: "actionise",
@@ -36,6 +44,14 @@ const initialProjects = [
     tags: ["App", "Personal Development"],
     url: "atomic-habits-builder",
     tag: "not started",
+  },
+  {
+    title: "Pansynergy",
+    description: "Practice Yoga, Breathing, Qigong, and Meditation.",
+    image: "pansynergy",
+    tags: ["App", "Yoga", "Breathing"],
+    deployedUrl: "https://pathways-orpin.vercel.app/",
+    tag: "in progress",
   },
   {
     title: "Pathways",
