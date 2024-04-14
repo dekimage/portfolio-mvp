@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 
 const initialProjects = [
   {
+    title: "Focus Timer",
+    description: "Minimalistic Focus Timer to boost producitvity",
+    tags: ["App"],
+    url: "focus-timer",
+    image: "focustimer",
+    tag: "in progress",
+  },
+  {
     title: "One Arena",
     description: "Print & Play One Page Skrimish Game 3v3 Champions",
     tags: ["Print & Play"],
