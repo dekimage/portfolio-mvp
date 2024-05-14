@@ -21,6 +21,7 @@ import storyRpgImg from "@/assets/home/story-rpg.png";
 import uglyTasksImg from "@/assets/home/ugly-tasks.png";
 import pansynergyImg from "@/assets/home/pansynergy.png";
 import onearenaImg from "@/assets/home/onearena.png";
+import focusTimerImg from "@/assets/home/focus-timer.png";
 
 const imagesLookup = {
   habits: habitsImg,
@@ -34,6 +35,7 @@ const imagesLookup = {
   uglyTasks: uglyTasksImg,
   pansynergy: pansynergyImg,
   onearena: onearenaImg,
+  focustimer: focusTimerImg,
 };
 
 const ProjectTag = ({ tag }) => {
@@ -99,7 +101,7 @@ const ProjectCard = ({ project }) => {
         ))}
       </CardContent>
       <CardFooter className="flex-col items-start gap-4">
-        <Link href={`/${url}`} className="w-full">
+        <Link href={deployedUrl ? deployedUrl : `/${url}`} className="w-full">
           <Button className="w-full">Play</Button>
         </Link>
 

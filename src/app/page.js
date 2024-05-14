@@ -58,7 +58,7 @@ const initialProjects = [
     description: "Practice Yoga, Breathing, Qigong, and Meditation.",
     image: "pansynergy",
     tags: ["App", "Yoga", "Breathing"],
-    deployedUrl: "https://pathways-orpin.vercel.app/",
+    deployedUrl: "https://pansynergy.vercel.app/",
     tag: "in progress",
   },
   {
