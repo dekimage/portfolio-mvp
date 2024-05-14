@@ -7,6 +7,8 @@ const nextConfig = {
       "assets.openai.com",
       "cdn.midjourney.com",
       "images.unsplash.com",
+      "backend-actionise.herokuapp.com",
+      "backendactionise.s3.eu-west-1.amazonaws.com",
     ],
   },
 };
