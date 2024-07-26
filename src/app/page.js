@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 
 const initialProjects = [
   {
+    title: "Psy Artifacts",
+    description: "Cool cards designed to be read while on psy",
+    tags: ["cards"],
+    url: "psy-artifacts",
+    image: "psyartifacts",
+    tag: "done",
+  },
+  {
     title: "Focus Timer",
     description: "Minimalistic Focus Timer to boost producitvity",
     tags: ["App"],
@@ -45,14 +53,14 @@ const initialProjects = [
     url: "top-concepts",
     tag: "paused",
   },
-  {
-    title: "Atomic Habits Builder",
-    description: "Build habits based on the book Atomic Habits by James Clear.",
-    image: "habits",
-    tags: ["App", "Personal Development"],
-    url: "atomic-habits-builder",
-    tag: "not started",
-  },
+  // {
+  //   title: "Atomic Habits Builder",
+  //   description: "Build habits based on the book Atomic Habits by James Clear.",
+  //   image: "habits",
+  //   tags: ["App", "Personal Development"],
+  //   url: "atomic-habits-builder",
+  //   tag: "not started",
+  // },
   {
     title: "Pansynergy",
     description: "Practice Yoga, Breathing, Qigong, and Meditation.",
@@ -61,15 +69,15 @@ const initialProjects = [
     deployedUrl: "https://pansynergy.vercel.app/",
     tag: "in progress",
   },
-  {
-    title: "Pathways",
-    description: "Craft personal gamified routines",
-    image: "quests",
-    tags: ["App", "Personal Development"],
-    url: "quests-builder",
-    deployedUrl: "https://pathways-orpin.vercel.app/",
-    tag: "in progress",
-  },
+  // {
+  //   title: "Pathways",
+  //   description: "Craft personal gamified routines",
+  //   image: "quests",
+  //   tags: ["App", "Personal Development"],
+  //   url: "quests-builder",
+  //   deployedUrl: "https://pathways-orpin.vercel.app/",
+  //   tag: "in progress",
+  // },
   {
     title: "Wisdom Explorers",
     description:
@@ -88,24 +96,24 @@ const initialProjects = [
     image: "roboRally",
     tag: "paused",
   },
-  {
-    title: "Ugly Tasks",
-    description:
-      "Todo list app for difficult tasks. It helps you optimize them using the 6 aspects of procrastination.",
-    tags: ["App", "Personal Development"],
-    url: "ugly-tasks",
-    image: "uglyTasks",
-    tag: "not started",
-  },
-  {
-    title: "Story RPG Tool",
-    description: "Create your own advanture game.",
-    tags: ["App", "Personal Development"],
-    url: "story-rpg",
-    deployedUrl: "https://story-rpg.vercel.app/",
-    image: "storyRpg",
-    tag: "in progress",
-  },
+  // {
+  //   title: "Ugly Tasks",
+  //   description:
+  //     "Todo list app for difficult tasks. It helps you optimize them using the 6 aspects of procrastination.",
+  //   tags: ["App", "Personal Development"],
+  //   url: "ugly-tasks",
+  //   image: "uglyTasks",
+  //   tag: "not started",
+  // },
+  // {
+  //   title: "Story RPG Tool",
+  //   description: "Create your own advanture game.",
+  //   tags: ["App", "Personal Development"],
+  //   url: "story-rpg",
+  //   deployedUrl: "https://story-rpg.vercel.app/",
+  //   image: "storyRpg",
+  //   tag: "in progress",
+  // },
 ];
 
 export default function Home() {

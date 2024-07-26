@@ -22,6 +22,7 @@ import uglyTasksImg from "@/assets/home/ugly-tasks.png";
 import pansynergyImg from "@/assets/home/pansynergy.png";
 import onearenaImg from "@/assets/home/onearena.png";
 import focusTimerImg from "@/assets/home/focus-timer.png";
+import psyArtifactsImg from "@/assets/home/psy-artifacts.png";
 
 const imagesLookup = {
   habits: habitsImg,
@@ -36,11 +37,15 @@ const imagesLookup = {
   pansynergy: pansynergyImg,
   onearena: onearenaImg,
   focustimer: focusTimerImg,
+  psyartifacts: psyArtifactsImg,
 };
 
 const ProjectTag = ({ tag }) => {
   let color;
   switch (tag) {
+    case "done":
+      color = "#06d6a0";
+      break;
     case "in progress":
       color = "orange";
       break;
@@ -56,7 +61,7 @@ const ProjectTag = ({ tag }) => {
   return (
     <Badge
       variant="screen"
-      className={`w-fit bg-${color}-400`}
+      className={`w-fit`}
       style={{ backgroundColor: color }}
     >
       {tag}
@@ -91,9 +96,9 @@ const ProjectCard = ({ project }) => {
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
-        <ProjectTag tag={tag} />
       </CardHeader>
-      <CardContent>
+      <CardContent className="gap-2 flex flex-wrap">
+        <ProjectTag tag={tag} />
         {tags.map((tag) => (
           <Badge variant="screen" key={tag} className="mr-2">
             {tag}
