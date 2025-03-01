@@ -1,25 +1,30 @@
 import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const TestimonialCard = ({ name, lastName, quote, imageUrl }) => {
+  const initials = `${name.charAt(0)}${lastName.charAt(0)}`;
+
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-      <div className="flex items-center mb-4">
-        <div className="relative w-16 h-16 mr-4">
-          <Image
-            src={imageUrl || "/placeholder-avatar.png"}
-            alt={`${name} ${lastName}`}
-            fill
-            className="rounded-full object-cover"
-          />
+    <Card className="h-full">
+      <CardContent className="pt-6">
+        <div className="flex items-center mb-4">
+          <Avatar className="h-12 w-12 mr-4">
+            <AvatarImage
+              src={imageUrl || "/placeholder-avatar.png"}
+              alt={`${name} ${lastName}`}
+            />
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="font-medium text-foreground">
+              {name} {lastName}
+            </h3>
+          </div>
         </div>
-        <div>
-          <h3 className="font-bold text-lg">
-            {name} {lastName}
-          </h3>
-        </div>
-      </div>
-      <p className="text-gray-600 italic">&quot;{quote}&quot;</p>
-    </div>
+        <p className="text-muted-foreground italic">&quot;{quote}&quot;</p>
+      </CardContent>
+    </Card>
   );
 };
 

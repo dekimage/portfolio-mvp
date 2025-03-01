@@ -1,4 +1,13 @@
 import Image from "next/image";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const toolImageMap = {
   gpt: "/tool-logos/gpt.png",
@@ -9,27 +18,35 @@ const toolImageMap = {
 
 const AutomationCard = ({ title, description, estimateTimeSave, tools }) => {
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-      <h3 className="text-xl font-bold mb-3">{title}</h3>
-      <p className="text-gray-600 mb-4">{description}</p>
-      <div className="mb-4">
-        <span className="text-green-600 font-semibold">
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-700 hover:bg-green-50 border-green-200"
+        >
           Saves approximately {estimateTimeSave} per day
-        </span>
-      </div>
-      <div className="flex gap-3">
+        </Badge>
+      </CardContent>
+      <CardFooter className="flex gap-2">
         {tools.map((tool) => (
-          <div key={tool} className="relative w-8 h-8">
+          <div
+            key={tool}
+            className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-100 p-1"
+          >
             <Image
               src={toolImageMap[tool.toLowerCase()]}
               alt={`${tool} logo`}
               fill
-              className="object-contain"
+              className="object-contain p-1"
             />
           </div>
         ))}
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };
 
