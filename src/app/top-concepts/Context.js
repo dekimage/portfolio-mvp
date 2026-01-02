@@ -39,6 +39,7 @@ export const GameProvider = ({ children }) => {
     const [handCards, remainingCardsAfterHand] = drawRandomCards(deck, 2);
     setHand(handCards);
     setDeck(remainingCardsAfterHand);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const completeCard = (cardId) => {

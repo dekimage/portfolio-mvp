@@ -94,7 +94,7 @@ export default function AiAutomations() {
                 <li className="flex items-start">
                   <Check className="h-5 w-5 text-primary mr-2 shrink-0" />
                   <span>
-                    We'll go over important questions about your workflow
+                    We&apos;ll go over important questions about your workflow
                   </span>
                 </li>
                 <li className="flex items-start">
@@ -103,7 +103,7 @@ export default function AiAutomations() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-5 w-5 text-primary mr-2 shrink-0" />
-                  <span>I'll create a custom solution with AI automations</span>
+                  <span>I&apos;ll create a custom solution with AI automations</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-5 w-5 text-primary mr-2 shrink-0" />
@@ -161,7 +161,7 @@ export default function AiAutomations() {
                 </DialogHeader>
                 <div className="py-4">
                   <p className="text-muted-foreground mb-4">
-                    Select a time that works for you and I'll reach out to
+                    Select a time that works for you and I&apos;ll reach out to
                     confirm.
                   </p>
                   <p className="text-sm text-muted-foreground">
@@ -171,7 +171,7 @@ export default function AiAutomations() {
               </DialogContent>
             </Dialog>
             <p className="mt-4 text-muted-foreground">
-              Not sure what's possible? Let's chat about your needs!
+              Not sure what&apos;s possible? Let&apos;s chat about your needs!
             </p>
           </div>
         </div>
